@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"target": "ES2023",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		// "verbatimModuleSyntax": true, // enable verbatimModuleSyntax
+		"declaration": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"outDir": "./dist",
+		"incremental": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noUnusedLocals": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"types": ["vitest/globals", "node"],
+
+		"strictPropertyInitialization": false, // Unused variables and parameters checks
+		"removeComments": false, // remove comments
+		"noUnusedParameters": true, // Code quality strictness
+		"sourceMap": false, // remove sourcemap
+		// "ignoreDeprecations": "6.0",
+		// "baseUrl": "./",
+		"paths": { "@/*": ["./src/*"] } // Resolves the path aliases declared in tsconfig.json
+	}
+}
