@@ -1,0 +1,180 @@
+<!-- 
+  Email Change Security Alert Template - Arabic Version (Modern UI)
+  Expected Variables:
+  - appName: string
+  - newEmail: string
+  - name?: string (optional)
+-->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>تنبيه أمني: طلب تغيير البريد الإلكتروني</title>
+	</head>
+	<body
+		style="
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f0f4f8;
+			margin: 0;
+			padding: 0;
+			direction: rtl;
+			text-align: right;
+			-webkit-font-smoothing: antialiased;
+		"
+	>
+		<table
+			role="presentation"
+			width="100%"
+			cellspacing="0"
+			cellpadding="0"
+			border="0"
+			style="background-color: #f0f4f8; padding: 40px 0"
+		>
+			<tr>
+				<td align="center">
+					<!-- Container Card -->
+					<table
+						role="presentation"
+						width="100%"
+						style="
+							max-width: 580px;
+							background-color: #ffffff;
+							border-radius: 16px;
+							box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+							overflow: hidden;
+							border-collapse: collapse;
+						"
+					>
+						<!-- Modern Header with Shield Icon -->
+						<tr>
+							<td
+								style="
+									background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+									padding: 45px 30px;
+									text-align: center;
+								"
+							>
+								<!-- Security Shield Icon -->
+								<div
+									style="
+										display: inline-block;
+										background: rgba(255, 255, 255, 0.1);
+										border: 1px solid rgba(255, 255, 255, 0.2);
+										width: 64px;
+										height: 64px;
+										line-height: 64px;
+										border-radius: 50%;
+										margin-bottom: 16px;
+										text-align: center;
+									"
+								>
+									<span style="font-size: 28px; line-height: 64px">🛡️</span>
+								</div>
+
+								<h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px">
+									<%= appName %>
+								</h1>
+							</td>
+						</tr>
+
+						<!-- Content Area -->
+						<tr>
+							<td style="padding: 40px 35px">
+								<h2 style="color: #d97706; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700">
+									تنبيه أمني: محاولة تغيير البريد الإلكتروني
+								</h2>
+
+								<p style="color: #334155; font-size: 15px; line-height: 1.7; margin-bottom: 16px">
+									مرحباً
+									<strong style="color: #0f172a; text-transform: capitalize">
+										<%= typeof name !== 'undefined' && name ? name : 'عميلنا العزيز' %>
+									</strong>
+									،
+								</p>
+
+								<p style="color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 24px">
+									لقد تلقينا للتو طلباً لتغيير البريد الإلكتروني المرتبط بحسابك على منصة
+									<strong><%= appName %></strong>
+									إلى العنوان التالي:
+								</p>
+
+								<!-- New Email Target Capsule -->
+								<div style="text-align: center; margin: 25px 0">
+									<div
+										style="
+											display: inline-block;
+											background-color: #f8fafc;
+											border: 1px solid #e2e8f0;
+											border-radius: 10px;
+											padding: 12px 24px;
+											color: #0f172a;
+											font-weight: 700;
+											font-size: 15px;
+											direction: ltr;
+										"
+									>
+										📧 <%= newEmail %>
+									</div>
+								</div>
+
+								<p style="color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 30px">
+									تم إرسال رمز التحقق (OTP) إلى البريد الجديد لتأكيد ملكيته.
+									<strong style="color: #0f172a">بريدك الحالي لا يزال فعالاً تماماً</strong>
+									ولم يتم إجراء أي تغيير نهائي على بياناتك حتى الآن. إذا كنت أنت من طلب هذا التغيير، فيمكنك تجاهل
+									هذه الرسالة بأمان.
+								</p>
+
+								<hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 30px 0" />
+
+								<!-- Warning Box for Unauthorized Activity -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tr>
+										<td
+											style="
+												background-color: #fffbebfb;
+												border-right: 4px solid #f59e0b;
+												padding: 18px;
+												border-radius: 8px;
+											"
+										>
+											<p style="color: #92400e; font-size: 14px; margin: 0 0 8px 0; font-weight: 700">
+												⚠️ هل لم تقم بهذا الإجراء بنفسك؟
+											</p>
+											<p style="color: #b45309; font-size: 13px; margin: 0; line-height: 1.6">
+												إذا لم تكن أنت من قام بهذا الطلب، فهذا يشير إلى أن
+												<strong style="color: #78350f">هناك شخصاً آخر يعرف كلمة مرورك الحالية</strong>
+												. يرجى تسجيل الدخول إلى حسابك فوراً، وإلغاء أي طلب معلق من إعدادات الحساب، ثم
+												<strong style="color: #78350f">قم بتغيير كلمة المرور فوراً</strong>
+												لحماية بياناتك.
+											</p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<!-- Modern Footer -->
+						<tr>
+							<td
+								style="
+									background-color: #f8fafc;
+									padding: 28px 35px;
+									text-align: center;
+									border-top: 1px solid #f1f5f9;
+								"
+							>
+								<p style="color: #94a3b8; font-size: 12px; margin: 0 0 8px 0; line-height: 1.5">
+									هذا تنبيه أمني تلقائي بخصوص حسابك، يرجى عدم الرد على هذه الرسالة مباشرة.
+								</p>
+								<p style="color: #cbd5e1; font-size: 12px; margin: 0; font-weight: 500; direction: ltr">
+									&copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.
+								</p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,198 @@
+<!-- 
+  Security Alert: Email Changed & Revert Link Template - Arabic Version
+  Expected Variables:
+  - appName: string
+  - newEmail: string
+  - revertUrl: string
+  - name?: string (optional)
+-->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>تنبيه أمني: تم تغيير البريد الإلكتروني</title>
+	</head>
+	<body
+		style="
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f0f4f8;
+			margin: 0;
+			padding: 0;
+			direction: rtl;
+			text-align: right;
+			-webkit-font-smoothing: antialiased;
+		"
+	>
+		<table
+			role="presentation"
+			width="100%"
+			cellspacing="0"
+			cellpadding="0"
+			border="0"
+			style="background-color: #f0f4f8; padding: 40px 0"
+		>
+			<tr>
+				<td align="center">
+					<!-- Container Card -->
+					<table
+						role="presentation"
+						width="100%"
+						style="
+							max-width: 580px;
+							background-color: #ffffff;
+							border-radius: 16px;
+							box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+							overflow: hidden;
+							border-collapse: collapse;
+						"
+					>
+						<!-- Modern Header with Shield Icon -->
+						<tr>
+							<td
+								style="
+									background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+									padding: 45px 30px;
+									text-align: center;
+								"
+							>
+								<!-- Security Shield Icon -->
+								<div
+									style="
+										display: inline-block;
+										background: rgba(255, 255, 255, 0.1);
+										border: 1px solid rgba(255, 255, 255, 0.2);
+										width: 64px;
+										height: 64px;
+										line-height: 64px;
+										border-radius: 50%;
+										margin-bottom: 16px;
+										text-align: center;
+									"
+								>
+									<span style="font-size: 28px; line-height: 64px">🛡️</span>
+								</div>
+
+								<h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px">
+									<%= appName %>
+								</h1>
+							</td>
+						</tr>
+
+						<!-- Content Area -->
+						<tr>
+							<td style="padding: 40px 35px">
+								<h2 style="color: #dc2626; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 700">
+									تنبيه أمني: تم تغيير البريد الإلكتروني
+								</h2>
+
+								<p style="color: #334155; font-size: 15px; line-height: 1.7; margin-bottom: 16px">
+									مرحباً
+									<strong style="color: #0f172a; text-transform: capitalize">
+										<%= typeof name !== 'undefined' && name ? name : 'عميلنا العزيز' %>
+									</strong>
+									،
+								</p>
+
+								<p style="color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 24px">
+									نود إحاطتك علماً بأن البريد الإلكتروني المرتبط بحسابك على منصة
+									<strong><%= appName %></strong>
+									قد تم تغييره بنجاح إلى العنوان التالي:
+								</p>
+
+								<!-- New Email Target Capsule -->
+								<div style="text-align: center; margin: 25px 0">
+									<div
+										style="
+											display: inline-block;
+											background-color: #f8fafc;
+											border: 1px solid #e2e8f0;
+											border-radius: 10px;
+											padding: 12px 24px;
+											color: #0f172a;
+											font-weight: 700;
+											font-size: 15px;
+											direction: ltr;
+										"
+									>
+										📧 <%= newEmail %>
+									</div>
+								</div>
+
+								<p style="color: #475569; font-size: 15px; line-height: 1.7; margin-bottom: 30px">
+									إذا كنت أنت من قام بهذا الإجراء، فلا داعي لاتخاذ أي خطوة أخرى وحسابك في أمان تام.
+								</p>
+
+								<!-- Action Button: Revert Account -->
+								<div style="text-align: center; margin: 35px 0">
+									<a
+										href="<%= revertUrl %>"
+										target="_blank"
+										style="
+											display: inline-block;
+											background-color: #dc2626;
+											color: #ffffff;
+											font-size: 15px;
+											font-weight: 700;
+											text-decoration: none;
+											padding: 14px 32px;
+											border-radius: 10px;
+											box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+										"
+									>
+										إلغاء هذا التغيير واستعادة الحساب فوراً
+									</a>
+								</div>
+
+								<p style="color: #64748b; font-size: 14px; line-height: 1.7; margin-bottom: 25px">
+									<strong style="color: #0f172a">هل لم تقم بهذا التغيير؟</strong>
+									قد يكون حسابك قد تعرض للاختراق من قِبل شخص آخر. اضغط على الزر أعلاه فوراً لإلغاء عملية النقل،
+									وإعادة بريدك القديم وتأمين حسابك.
+								</p>
+
+								<hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 30px 0" />
+
+								<!-- Expiration Warning Box -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tr>
+										<td
+											style="
+												background-color: #fef2f2;
+												border-right: 4px solid #ef4444;
+												padding: 16px;
+												border-radius: 8px;
+											"
+										>
+											<p style="color: #991b1b; font-size: 13px; margin: 0; font-weight: 600; line-height: 1.5">
+												⚠️ ملاحظة حماية: لحمايتك، ينتهي مفعول رابط الاستعادة هذا تلقائياً بعد مرور 7 أيام.
+											</p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<!-- Modern Footer -->
+						<tr>
+							<td
+								style="
+									background-color: #f8fafc;
+									padding: 28px 35px;
+									text-align: center;
+									border-top: 1px solid #f1f5f9;
+								"
+							>
+								<p style="color: #94a3b8; font-size: 12px; margin: 0 0 8px 0; line-height: 1.5">
+									هذا تنبيه أمني تلقائي، يرجى عدم الرد على هذه الرسالة مباشرة.
+								</p>
+								<p style="color: #cbd5e1; font-size: 12px; margin: 0; font-weight: 500; direction: ltr">
+									&copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.
+								</p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
