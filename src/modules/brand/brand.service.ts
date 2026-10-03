@@ -138,9 +138,6 @@ export class BrandService {
 			}
 		}
 
-		console.log({ brandId });
-		console.log({ files });
-
 		const uploadTasks: Promise<void>[] = [];
 		const deleteTasks: Promise<void>[] = [];
 		const newFiles: TDeleteAttachment[] = [];

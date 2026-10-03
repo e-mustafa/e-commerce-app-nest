@@ -18,8 +18,6 @@ export default class UserService {
 
 	async getProfile(userId: Id): Promise<IUserBody> {
 		const user = await this.UserRepo.findById(userId).lean().select(selectUserInfo).exec();
-		// if (!user) throw new NotFoundException('User not found');
-		console.log('user', user);
 		if (!user) throw new UnauthorizedException('Unauthenticated, please login.');
 
 		return user;
@@ -52,9 +50,6 @@ export default class UserService {
 	}
 
 	async uploadUserPic(userId: Id, file: IFile): Promise<IUser> {
-		// console.log('uploadUserPic file', file);
-		console.log('userId', userId);
-		console.log('userId', typeof userId);
 		const fieldname = file?.fieldname as 'avatar' | 'cover';
 
 		const location = UploadPathBuilder.getUserPicLocation(userId.toString(), fieldname);

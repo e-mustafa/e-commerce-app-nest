@@ -24,7 +24,6 @@ export class ProductService {
 	async listProducts({ user, ...query }: I.IListProductPayload) {
 		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
 		const filter: QueryFilter<HProduct> = {};
-		console.log('isAdmin', isAdmin);
 
 		// Safely handle boolean check for published status
 		if (typeof query.isPublished === 'boolean' && isAdmin) {

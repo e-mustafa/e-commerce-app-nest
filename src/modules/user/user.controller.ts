@@ -1,4 +1,4 @@
-import { AUser, OptionalAuth } from '@/common/decorators';
+import { AUser, Auth } from '@/common/decorators';
 import { AuthGuard } from '@/common/guards';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
@@ -33,7 +33,8 @@ export const routes = {
 	getUserStatus: '/:userId/status', // GET
 };
 
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
+@Auth()
 @Controller(routes.base)
 export default class UserController {
 	constructor(private readonly services: UserService) {}
@@ -89,7 +90,6 @@ export default class UserController {
 	}
 
 	@Get(routes.getUser)
-	@OptionalAuth()
 	async getUser(@AUser('_id') userId: Id, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
 		const data = await this.services.getUser(userId, params.userId);
 		return { data };

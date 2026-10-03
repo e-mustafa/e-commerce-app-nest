@@ -34,6 +34,7 @@ export class CMailRequestChangeEmailOtp {
 	constructor(
 		public readonly email: string,
 		public readonly username: string,
+		public readonly newEmail: string,
 		public readonly otp: string,
 		public readonly locale: TMailLocale = 'en',
 	) {}

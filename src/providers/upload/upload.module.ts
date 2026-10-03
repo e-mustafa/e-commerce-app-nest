@@ -19,7 +19,6 @@ import { StorageProviderEnum } from './upload.enum';
 			inject: [appConfig.KEY, LocalUploadService, S3Service, CloudinaryService],
 			useFactory(APP: AppConfig, local: LocalUploadService, S3: S3Service, cloudinary: CloudinaryService) {
 				const provider = APP.uploadStorage.provider;
-				console.log('upload provider', provider);
 				if (provider === StorageProviderEnum.CLOUDINARY) return cloudinary;
 				if (provider === StorageProviderEnum.AWS_S3) return S3;
 				return local;

@@ -4,6 +4,7 @@
 /build
 todo.ts
 /zzz
+/uploads
 
 # TypeScript build cache
 *.tsbuildinfo

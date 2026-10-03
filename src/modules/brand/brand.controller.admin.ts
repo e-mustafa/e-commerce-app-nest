@@ -1,4 +1,4 @@
-import { AdminAuth, AUser } from '@/common/decorators';
+import { AUser, AuthAdmin } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { UseUpload } from '@/providers/upload';
@@ -24,7 +24,7 @@ const routes = {
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
-@AdminAuth() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
+@AuthAdmin() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
 // TODO - add receptor to add domain to uploaded file url - if used local upload
 @Controller(routes.base)
 export class BrandAdminController {

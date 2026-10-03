@@ -19,7 +19,7 @@ export type TMailLocale = 'en' | 'ar';
 export interface IMailService {
 	verifyAccountOtp({ email, username, otp, locale }: CMailVerifyAccountOtp): Promise<SentMessageInfo | null>;
 	resetPasswordLink({ email, username, link, period, locale }: CMailResetPasswordLink): Promise<SentMessageInfo | null>;
-	requestChangeEmailOtp({ email, username, otp, locale }: CMailRequestChangeEmailOtp): Promise<SentMessageInfo | null>;
+	requestChangeEmailOtp({ email, username, newEmail, otp, locale }: CMailRequestChangeEmailOtp): Promise<SentMessageInfo | null>;
 	requestChangeNotice({
 		email,
 		username,
@@ -113,6 +113,7 @@ export class MailService implements IMailService {
 	async requestChangeEmailOtp({
 		email,
 		username,
+		newEmail,
 		otp,
 		locale = 'en',
 	}: CMailRequestChangeEmailOtp): Promise<SentMessageInfo | null> {
@@ -128,7 +129,7 @@ export class MailService implements IMailService {
 				to: email,
 				subject: locale === 'ar' ? subject_ar : subject_en,
 				template: locale === 'ar' ? template_ar : template_en,
-				context: { otp, appName, name: username },
+				context: { otp, appName, newEmail, name: username },
 			});
 
 			this.logger.log(`Request to change email sent to (${email}) successfully!`);

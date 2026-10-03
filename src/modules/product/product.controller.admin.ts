@@ -1,4 +1,4 @@
-import { AdminAuth, AUser } from '@/common/decorators';
+import { AUser, AuthAdmin } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { UseUpload } from '@/providers/upload';
@@ -23,7 +23,7 @@ const routes = {
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
-@AdminAuth() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
+@AuthAdmin() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
 @Controller(routes.base)
 export class ProductAdminController {
 	constructor(private readonly service: ProductService) {}

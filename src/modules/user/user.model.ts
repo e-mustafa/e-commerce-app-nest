@@ -20,17 +20,6 @@ export type UserTransformRet = Partial<User> & {
 	strict: true,
 	strictQuery: true,
 	toObject: { virtuals: true },
-	// toJSON: {
-	// 	virtuals: true,
-	// 	transform(_doc, ret: UserTransformRet) {
-	// 		if (ret._id) {
-	// 			ret.id = ret._id.toString();
-	// 		}
-	// 		delete ret.password;
-	// 		delete ret.__v;
-	// 		return ret;
-	// 	},
-	// },
 })
 export class User {
 	@Prop({

@@ -15,9 +15,6 @@ import { envConfig } from './config';
 		cors: true,
 	});
 
-	// console.log(`Current directory: ${process.cwd()}`); \
-	// console.log(`Current directory: ${__dirname}`); \dist
-
 	app.use(helmet());
 	app.enableCors();
 	// TODO: implement Rate limiting with redis

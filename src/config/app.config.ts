@@ -6,9 +6,9 @@ export type AppConfig = ConfigType<typeof appConfig>;
 
 export const appConfig = registerAs('app', () => ({
 	app: {
-		name: process.env.APP_NAME || 'MyApp',
+		name: process.env.APP_NAME || 'E-commerce App',
 		version: '1.0.0',
-		description: 'MyApp Main API Service',
+		description: 'E-commerce App Main API Service',
 	},
 	auth: {
 		password: {
@@ -36,6 +36,10 @@ export const appConfig = registerAs('app', () => ({
 		},
 		changeEmail: {
 			expiresIn: 60 * 10,
+			cooldownPeriod: 60 * 1, // 1 minute
+			sendAttempts: 5,
+			attemptsExpiration: 3600, // 1 hour
+			failedAttempts: 5,
 		},
 		reactivateAccount: {
 			expiresIn: 60 * 10,
