@@ -22,9 +22,15 @@ export interface IRefreshAccessTokenPayload {
 
 export interface ISocialLoginPayload extends dto.SocialGoogleDTO {
 	provider: ProviderEnum;
+	clientIp?: string;
+	userAgent?: string;
 }
 
 export interface IChangePasswordPayload extends dto.ChangePasswordDTO {
+	userId: Id;
+}
+
+export interface IRequestChangeEmailPayload extends dto.RequestChangeEmailDTO {
 	userId: Id;
 }
 

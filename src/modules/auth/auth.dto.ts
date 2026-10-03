@@ -90,6 +90,29 @@ export const forgetPasswordSchema = {
 };
 export type ForgetPasswordDTO = z.infer<typeof forgetPasswordSchema.body>;
 
+
+export const changeEmailRequestSchema = {
+	body: z.strictObject({
+		newEmail: generalFields.email,
+		password: generalFields.password,
+	}),
+};
+export type RequestChangeEmailDTO = z.infer<typeof changeEmailRequestSchema.body>;
+
+export const changeEmailSchema = {
+	body: z.strictObject({
+		otp: generalFields.otp,
+	}),
+};
+export type ChangeEmailDTO = z.infer<typeof changeEmailSchema.body>;
+
+export const revertEmailSchema = {
+	body: z.strictObject({
+		token: generalFields.token,
+	}),
+};
+export type RevertEmailDTO = z.infer<typeof revertEmailSchema.body>;
+
 export const resetPasswordSchema = {
 	body: z
 		.strictObject({

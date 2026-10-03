@@ -8,9 +8,11 @@ import { userModel } from '../user/user.model';
 import { UserRepository } from '../user/user.repository';
 import AuthController from './auth.controller';
 import { RedisAuthKeyBuilder } from './redis/auth.redis.keys';
+import { ChangeEmailOtpRedisService } from './redis/change-email-otp.redis.service';
 import { ReactiveAccountRedisService } from './redis/reactive-account.redis.service';
 import { RefreshTokenRedisService } from './redis/refresh-token.redis.service';
 import { ResetPasswordRedisService } from './redis/reset-password.redis.service';
+import { RevertEmailTokenRedisService } from './redis/revert-email-token.redis.service';
 import { VerifyAccountOtpRedisService } from './redis/verify-account-otp.redis.service';
 import AuthService from './services/auth.service';
 import { CookieService } from './services/cookie.service';
@@ -26,6 +28,8 @@ import { CookieService } from './services/cookie.service';
 		RefreshTokenRedisService,
 		ReactiveAccountRedisService,
 		ResetPasswordRedisService,
+		ChangeEmailOtpRedisService,
+		RevertEmailTokenRedisService,
 
 		//? add to security module exports and import in imports
 		// GoogleAuthService,

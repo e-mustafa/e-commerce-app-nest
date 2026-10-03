@@ -47,6 +47,22 @@ export class RedisAuthKeyBuilder {
 	public resetPasswordToken(hashedToken: string): string {
 		return `users:reset:${hashedToken}`;
 	}
+
+	public userChangeEmailOtp(userId: string): string {
+		return `auth:change-email:otp:${userId}`;
+	}
+
+	public userChangeEmailOtpCooldown(userId: string): string {
+		return `auth:change-email:cooldown:${userId}`;
+	}
+
+	public userChangeEmailOtpAttempts(userId: string): string {
+		return `auth:change-email:attempts:${userId}`;
+	}
+
+	public userRevertEmailToken(userId: string): string {
+		return `auth:revert-email:token:${userId}`;
+	}
 }
 
 // export const redisKeys = new RedisKeyBuilder();

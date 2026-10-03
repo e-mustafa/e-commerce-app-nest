@@ -1,6 +1,7 @@
+import { Auth } from '@/common/decorators';
 import { AUser } from '@/common/decorators/request.decorator';
 import type { Id } from '@/common/types';
-import { Body, Controller, Cookies, Get, HttpStatus, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Cookies, Delete, Get, HttpStatus, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ProviderEnum } from '../user/user.enums';
 import type * as dto from './auth.dto';
@@ -26,15 +27,13 @@ const routes = {
 	forgotPassword: '/forgot-password',
 	resetPassword: '/reset-password',
 
-	// TODO - requestChangeEmail
-	// requestChangeEmail: '/request-change-email',
-	// changeEmail: '/change-email',
-	// revertEmail: '/revert-email',
+	requestChangeEmail: '/change-email/request',
+	changeEmail: '/change-email',
+	revertEmail: '/change-email/revert',
 
 	logout: '/logout',
 	logoutAll: '/logout-all',
 
-	// get sessions
 	getSessions: '/sessions',
 	getSession: '/session',
 
@@ -52,8 +51,8 @@ export default class AuthController {
 	) {}
 
 	@Post(routes.checkUsername)
-	async checkUsername(@AUser('_id') userId: Id, @Body({ schema: S.checkUsernameSchema.body }) body: dto.CheckUserNameDTO) {
-		const available = await this.service.checkUsername({ userId, ...body });
+	async checkUsername(@Body({ schema: S.checkUsernameSchema.body }) body: dto.CheckUserNameDTO) {
+		const available = await this.service.checkUsername(body.username);
 		return { data: { available } };
 	}
 
@@ -101,25 +100,23 @@ export default class AuthController {
 
 	@Post(routes.socialLogin_google)
 	async socialLogin_google(
+		@Req() req: Request,
 		@Body({ schema: S.socialGoogleSchema.body }) body: dto.SocialGoogleDTO,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const { isNew, tokens } = await this.service.socialLogin_google({ provider: ProviderEnum.GOOGLE, ...body });
+		const { isNew, tokens } = await this.service.socialLogin_google({
+			...body,
+			provider: ProviderEnum.GOOGLE,
+			clientIp: req.ip,
+			userAgent: req.headers['user-agent'] || req.get('User-Agent'),
+		});
 		this.cookieService.setAuthCookies(res, tokens);
 		if (isNew) {
+			res.status(HttpStatus.CREATED);
 			return { status: 201, message: 'Account created successfully', data: tokens };
 		} else {
 			return { message: 'Login successfully', data: tokens };
 		}
-	}
-
-	@Post(routes.changePassword)
-	async changePassword(
-		@AUser('_id') userId: Id,
-		@Body({ schema: S.changePasswordSchema.body }) body: dto.ChangePasswordDTO,
-	) {
-		await this.service.changePassword({ userId, ...body });
-		return { message: 'Password changed successfully' };
 	}
 
 	@Post(routes.forgotPassword)
@@ -134,44 +131,70 @@ export default class AuthController {
 		return { message: 'Password changed successfully' };
 	}
 
-	@Post(routes.logout)
-	async logout(
-		@Cookies() cookies: dto.RefreshAccessTokenDTO,
-		@Res({ passthrough: true }) res: Response,
+	@Post(routes.changePassword)
+	@Auth()
+	async changePassword(
+		@AUser('_id') userId: Id,
+		@Body({ schema: S.changePasswordSchema.body }) body: dto.ChangePasswordDTO,
 	) {
+		await this.service.changePassword({ userId, ...body });
+		return { message: 'Password changed successfully' };
+	}
+
+	@Auth()
+	@Post(routes.requestChangeEmail)
+	async requestChangeEmail(
+		@AUser('_id') userId: Id,
+		@Body({ schema: S.changeEmailRequestSchema.body }) body: dto.RequestChangeEmailDTO,
+	) {
+		await this.service.changeEmailRequest({ userId, ...body });
+		return { message: 'Email change request sent successfully' };
+	}
+
+	@Auth()
+	@Patch(routes.changeEmail)
+	async changeEmail(@AUser('_id') userId: Id, @Body({ schema: S.changeEmailSchema.body }) body: dto.ChangeEmailDTO) {
+		await this.service.changeEmail(userId, body.otp);
+		return { message: 'Email changed successfully' };
+	}
+
+	@Auth()
+	@Post(routes.revertEmail)
+	async revertEmail(@AUser('_id') userId: Id, @Body({ schema: S.revertEmailSchema.body }) body: dto.RevertEmailDTO) {
+		const data = await this.service.revertEmailBack(userId, body.token);
+		return { message: 'Account activated and login successfully.', data };
+	}
+
+	@Post(routes.logout)
+	async logout(@Cookies() cookies: dto.RefreshAccessTokenDTO, @Res({ passthrough: true }) res: Response) {
 		await this.service.logout(cookies.refreshToken);
 		this.cookieService.clearCookies(res);
 		return { message: 'Logout successfully' };
 	}
 
 	@Post(routes.logoutAll)
-	async logoutAll(
-		@Cookies() cookies: dto.RefreshAccessTokenDTO,
-		@Res({ passthrough: true }) res: Response,
-	) {
+	async logoutAll(@Cookies() cookies: dto.RefreshAccessTokenDTO, @Res({ passthrough: true }) res: Response) {
 		await this.service.logoutAll(cookies.refreshToken);
 		this.cookieService.clearCookies(res);
 		return { message: 'Logout all successfully' };
 	}
 
+	@Auth()
 	@Get(routes.getSession)
-	async getSessions(
-		@AUser('_id') userId: Id,
-		@Cookies() cookies: dto.RefreshAccessTokenDTO,
-	) {
+	async getSessions(@AUser('_id') userId: Id, @Cookies() cookies: dto.RefreshAccessTokenDTO) {
 		const data = await this.service.getThisSession(userId, cookies.refreshToken);
 		return { data };
 	}
 
+	@Auth()
 	@Get(routes.getSessions)
-	async getMySessions(
-		@AUser('_id') userId: Id,
-		@Cookies() cookies: dto.RefreshAccessTokenDTO,
-	) {
+	async getMySessions(@AUser('_id') userId: Id, @Cookies() cookies: dto.RefreshAccessTokenDTO) {
 		const data = await this.service.getMySessions(userId, cookies.refreshToken);
 		return { data };
 	}
 
+	@Auth()
+	@Delete(routes.removeSessions)
 	async removeSession(
 		@Param({ schema: S.removeSessionSchema.params }) params: dto.RemoveSessionDTO,
 		@Cookies() cookies: dto.RefreshAccessTokenDTO,
@@ -180,12 +203,13 @@ export default class AuthController {
 		const isLogout = await this.service.removeSession(cookies.refreshToken, params.sessionId);
 
 		if (isLogout) {
-			// remove cookies
 			this.cookieService.clearCookies(res);
 		}
 		return { message: 'Session removed successfully' };
 	}
 
+	@Auth()
+	@Patch(routes.deactivateMyAccount)
 	async deactivateMyAccount(
 		@AUser('_id') userId: Id,
 		@Cookies() cookies: dto.RefreshAccessTokenDTO,
@@ -193,11 +217,11 @@ export default class AuthController {
 		res: Response,
 	) {
 		const data = await this.service.deactivateMyAccount(userId, cookies.refreshToken);
-		// remove cookies
 		this.cookieService.clearCookies(res);
 		return { message: 'Account deactivated successfully', data };
 	}
 
+	@Post(routes.activateMyAccount)
 	async reactivateMyAccount(
 		@Req() req: Request,
 		@Body({ schema: S.reactivateAccountSchema.body }) body: dto.ReactivateAccountDTO,

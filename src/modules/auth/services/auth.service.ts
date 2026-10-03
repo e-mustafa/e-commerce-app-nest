@@ -22,7 +22,16 @@ import {
 } from '@/modules/user';
 import { UserRepository } from '@/modules/user/user.repository';
 import { AppEventEmitter } from '@/providers/event/typed-event-emitter.service';
-import { CMailResetPasswordLink, CMailVerifyAccountOtp, EMailEvent } from '@/providers/mail';
+import {
+	CMailChangedAlertOldEmail,
+	CMailEmailUpdateSuccess,
+	CMailRequestChangeEmailNotice,
+	CMailRequestChangeEmailOtp,
+	CMailResetPasswordLink,
+	CMailRevertSuccessEmail,
+	CMailVerifyAccountOtp,
+	EMailEvent,
+} from '@/providers/mail';
 import { TTokens } from '@/providers/security';
 import { GoogleAuthService } from '@/providers/security/services/google-auth.service';
 import { HashingService } from '@/providers/security/services/hashing.service';
@@ -33,9 +42,11 @@ import type * as I from '../auth-service.interface';
 import type * as dto from '../auth.dto';
 import { TLoginResult } from '../auth.types';
 import {
+	ChangeEmailOtpRedisService,
 	ReactiveAccountRedisService,
 	RefreshTokenRedisService,
 	ResetPasswordRedisService,
+	RevertEmailTokenRedisService,
 	VerifyAccountOtpRedisService,
 } from '../redis';
 
@@ -56,12 +67,14 @@ export default class AuthService {
 		private readonly googleAuthService: GoogleAuthService,
 		private readonly otpService: VerifyAccountOtpRedisService,
 		private readonly refreshTokenService: RefreshTokenRedisService,
-		private readonly reactiveAccountService: ReactiveAccountRedisService,
 		private readonly resetPasswordService: ResetPasswordRedisService,
+		private readonly changeEmailOtpServices: ChangeEmailOtpRedisService,
+		private readonly reactiveAccountService: ReactiveAccountRedisService,
+		private readonly revertEmailTokenService: RevertEmailTokenRedisService,
 		private readonly eventEmitter: AppEventEmitter,
 	) {}
 
-	async checkUsername({ username }: I.ICheckUsernamePayload): Promise<boolean> {
+	async checkUsername(username: I.ICheckUsernamePayload['username']): Promise<boolean> {
 		const existUsername = await this.UserRepo.findOne({ username }).select('username').exec();
 		if (existUsername) throw new ValidationErrorsException({ body: { username: 'Username already taken' } });
 		return true;
@@ -79,7 +92,6 @@ export default class AuthService {
 		confirmPassword,
 	}: I.IRegisterPayload): Promise<boolean> {
 		// 1. Check if the email is already registered
-		// const existEmail = await User.findOne({ email }).select('email');
 		const existEmail = await this.UserRepo.findByEmail(email).select('email').exec();
 		if (existEmail) {
 			throw new ConflictException('This email is already registered', {
@@ -122,7 +134,7 @@ export default class AuthService {
 		// 1. Fetch user (Silent return if not found to prevent user enumeration attacks)
 		const user = await this.UserRepo.findByEmail(email).select('email firstName verifiedAt').lean().exec();
 		if (!user) throw new NotFoundException('User not found');
-		console.log('user.verifiedAt', user.verifiedAt);
+		
 		if (user.verifiedAt) throw new BadRequestException('Your account is already verified');
 
 		const userEmail = user.email;
@@ -229,7 +241,7 @@ export default class AuthService {
 		const user = await this.UserRepo.findByEmail(email, { ignoreDefaultFilters: true }).exec();
 
 		if (!user) {
-			throw new NotFoundException('Invalid Credentials', 'User-not-found_login');
+			throw new NotFoundException('Invalid Credentials');
 		}
 
 		if (!(await this.hashingService.verifyHash(password, user.password!, true))) {
@@ -279,10 +291,7 @@ export default class AuthService {
 		// Check if refresh token session exists in Redis
 		const existingSession = await this.refreshTokenService.getSession([payload.id, payload.jti]);
 		if (!existingSession) {
-			throw new NotFoundException(
-				'Refresh token is invalid or has been revoked, please login again.',
-				'Refresh-token-invalid_refreshAccessToken',
-			);
+			throw new NotFoundException('Refresh token is invalid or has been revoked, please login again.');
 		}
 
 		const user = await this.UserRepo.findById(payload.id).exec();
@@ -321,7 +330,12 @@ export default class AuthService {
 		return tokens;
 	}
 
-	async socialLogin_google({ provider, idToken }: I.ISocialLoginPayload): Promise<{ isNew: boolean; tokens: TTokens }> {
+	async socialLogin_google({
+		provider,
+		idToken,
+		clientIp,
+		userAgent,
+	}: I.ISocialLoginPayload & { clientIp?: string; userAgent?: string }): Promise<{ isNew: boolean; tokens: TTokens }> {
 		if (!provider || !Object.values(ProviderEnum).includes(provider)) {
 			throw new InternalException('Invalid provider');
 		}
@@ -338,7 +352,8 @@ export default class AuthService {
 			throw new BadRequestException('Email not verified, Use another account');
 		}
 
-		const isExists = await this.UserRepo.findByEmail(email).exec();
+		// Ignore default filters to fetch inactive/deactivated users correctly
+		const isExists = await this.UserRepo.findByEmail(email, { ignoreDefaultFilters: true }).exec();
 
 		if (isExists && isExists.provider !== provider) {
 			if (isExists.provider === ProviderEnum.SYSTEM) {
@@ -348,23 +363,39 @@ export default class AuthService {
 			}
 		}
 
-		// login exist user
+		let targetUser: HUser;
+		let isNew = false;
+
 		if (isExists) {
-			const tokens = await this.tokenService.generateTokens(isExists, false);
-			return { isNew: false, tokens };
+			targetUser = isExists;
+		} else {
+			isNew = true;
+			targetUser = await this.UserRepo.create({
+				email,
+				firstName: given_name || email.split('@')[0]!,
+				lastName: family_name || email.split('@')[0] || 'AA',
+				avatar: picture ? { id: 'google-picture', url: picture } : null,
+				provider,
+				verifiedAt: new Date(),
+			});
 		}
 
-		// create new user
-		const newUser: HUser = await this.UserRepo.create({
-			email,
-			firstName: given_name || email.split('@')[0]!,
-			lastName: family_name || email.split('@')[0] || 'AA',
-			avatar: picture ? { id: 'google-picture', url: picture } : null,
-			provider,
-		});
+		const tokens = await this.tokenService.generateTokens(targetUser, false);
 
-		const tokens = await this.tokenService.generateTokens(newUser, false);
-		return { isNew: true, tokens };
+		// Save session in Redis for both existing and new Google login users
+		const sessionInfo: ISessionInfo = {
+			ip: clientIp || 'Unknown',
+			device: userAgent || 'Unknown Device',
+			createdAt: new Date().toISOString(),
+		};
+
+		await this.refreshTokenService.setSession(
+			[targetUser._id.toString(), tokens.tokenId!],
+			sessionInfo,
+			tokens.refreshExpiration,
+		);
+
+		return { isNew, tokens };
 	}
 
 	async forgetPassword({ email }: dto.ForgetPasswordDTO) {
@@ -431,6 +462,141 @@ export default class AuthService {
 		return true;
 	}
 
+	async changeEmailRequest({ userId, newEmail, password }: I.IRequestChangeEmailPayload): Promise<boolean> {
+		const userIdStr = userId.toString();
+
+		const user = await this.UserRepo.findById(userId).lean().exec();
+		if (!user) throw new NotFoundException('User not found');
+
+		if (user.email.toLowerCase() === newEmail.toLowerCase()) {
+			throw new BadRequestException('New email cannot be the same as current email');
+		}
+
+		const isCooldown = await this.changeEmailOtpServices.isCooldownActive(userIdStr);
+		if (isCooldown) {
+			throw new TooManyRequestsException('Please wait before requesting another email change OTP');
+		}
+
+		const isValidPassword = await this.hashingService.verifyHash(password, user.password, true);
+		if (!isValidPassword) {
+			throw new BadRequestException('Invalid password', {
+				body: { password: 'Invalid password' },
+			});
+		}
+
+		const isEmailExists = await this.UserRepo.findByEmail(newEmail).exec();
+		if (isEmailExists) {
+			throw new BadRequestException('Email already exists', {
+				body: { newEmail: 'Email already exists' },
+			});
+		}
+
+		const otp = this.hashingService.generateOtp();
+		await this.changeEmailOtpServices.set(userIdStr, { newEmail, otp });
+
+		// Send OTP code directly to the NEW email address for verification
+		const payloadNewEmailOtp = new CMailRequestChangeEmailOtp(newEmail, user.name || user.firstName, newEmail, otp);
+		this.eventEmitter.emit(EMailEvent.REQUEST_CHANGE_EMAIL_OTP, payloadNewEmailOtp);
+
+		// Send security notice to the CURRENT/OLD email address
+		const payloadOldEmailNotice = new CMailRequestChangeEmailNotice(user.email, user.name || user.firstName, newEmail);
+		this.eventEmitter.emit(EMailEvent.REQUEST_CHANGE_NOTICE, payloadOldEmailNotice);
+
+		return true;
+	}
+
+	async changeEmail(userId: Id, otp: string): Promise<boolean> {
+		const userIdStr = userId.toString();
+
+		const user = await this.UserRepo.findById(userId).exec();
+		if (!user) {
+			throw new NotFoundException('User not found', 'changeEmailService-user-not-found');
+		}
+
+		const otpData = await this.changeEmailOtpServices.get(userIdStr);
+		if (!otpData) {
+			throw new BadRequestException('Expired OTP, please request a new one');
+		}
+
+		const failedAttempts = await this.changeEmailOtpServices.getAttempts(userIdStr);
+		const maxFailed = this.APP.otp.changeEmail?.failedAttempts || 5;
+
+		if (failedAttempts >= maxFailed) {
+			await this.changeEmailOtpServices.delete(userIdStr);
+			throw new TooManyRequestsException('Too many failed attempts. OTP has been invalidated');
+		}
+
+		if (otpData.otp !== otp) {
+			await this.changeEmailOtpServices.incrementAttempts(userIdStr);
+			throw new BadRequestException('Invalid OTP');
+		}
+
+		const oldEmail = user.email;
+		user.email = otpData.newEmail;
+		await user.save();
+
+		await Promise.all([
+			this.changeEmailOtpServices.delete(userIdStr),
+			this.changeEmailOtpServices.deleteAttempts(userIdStr),
+		]);
+
+		const revertToken = this.hashingService.generateRandomToken();
+		const hashedToken = this.hashingService.hashToken(revertToken);
+
+		await this.revertEmailTokenService.set(userIdStr, { token: hashedToken, oldEmail });
+
+		const url = new URL(`${this.ENV.frontendUrl}${this.APP.routes.frontend.revertEmail}`);
+		url.searchParams.append('email', oldEmail);
+		url.searchParams.append('userId', userIdStr);
+		url.searchParams.append('token', revertToken);
+
+		const revertUrl = url.toString();
+
+		// Send security alert with revert token link to the OLD email
+		const payloadOld = new CMailChangedAlertOldEmail(oldEmail, user.name || user.firstName, oldEmail, revertUrl);
+		this.eventEmitter.emit(EMailEvent.CHANGED_ALERT_OLD_EMAIL, payloadOld);
+
+		// Send confirmation email to the NEW email (now updated in DB)
+		const payloadNew = new CMailEmailUpdateSuccess(user.email, user.name || user.firstName);
+		this.eventEmitter.emit(EMailEvent.EMAIL_UPDATE_SUCCESS, payloadNew);
+
+		return true;
+	}
+
+	async revertEmailBack(userId: Id, token: string): Promise<boolean> {
+		const userIdStr = userId.toString();
+
+		const user = await this.UserRepo.findById(userId).exec();
+		if (!user) throw new NotFoundException('User not found');
+
+		const savedToken = await this.revertEmailTokenService.get(userIdStr);
+		if (!savedToken) {
+			throw new BadRequestException('Invalid token or expired');
+		}
+
+		const hashedToken = this.hashingService.hashToken(token);
+
+		if (savedToken.token !== hashedToken || !savedToken.oldEmail) {
+			throw new BadRequestException('Invalid token');
+		}
+
+		// Restore old email and revoke active tokens
+		user.email = savedToken.oldEmail;
+		user.loggedOutAllAt = new Date();
+		await user.save();
+
+		await this.refreshTokenService.deletePattern(userIdStr);
+
+		// Send confirmation to restored OLD email
+		const payloadRestored = new CMailRevertSuccessEmail(savedToken.oldEmail, user.name || user.firstName);
+		this.eventEmitter.emit(EMailEvent.REVERT_SUCCESS_EMAIL, payloadRestored);
+
+		// Clean up revert token in Redis
+		await this.revertEmailTokenService.delete(userIdStr);
+
+		return true;
+	}
+
 	async logout(refreshToken: string): Promise<boolean> {
 		const payload = await this.tokenService.decode(refreshToken, true);
 		if (!payload || !payload.id || !payload.jti) {
@@ -475,8 +641,6 @@ export default class AuthService {
 			throw new NotFoundException('User not found');
 		}
 
-		console.log({ currentPassword, user: user.password });
-
 		const isPasswordValid = await this.hashingService.verifyHash(currentPassword, user.password || '', true);
 		if (!isPasswordValid) {
 			throw new BadRequestException('Current password is incorrect');
@@ -506,7 +670,6 @@ export default class AuthService {
 		}
 
 		const session = await this.refreshTokenService.getSession([payload.id, payload.jti]);
-		console.log('session', session);
 		if (!session) {
 			throw new NotFoundException('Session not found');
 		}
@@ -541,15 +704,10 @@ export default class AuthService {
 			throw new NotFoundException('Invalid refresh token');
 		}
 
-		// delete session from redis
+		// Delete specified session key from Redis
 		await this.refreshTokenService.delete([payload.id, sessionId]);
 
-		if (sessionId === payload.jti) {
-			return true;
-		}
-
-		await this.logoutAll(refreshToken);
-		return false;
+		return true;
 	}
 
 	// Active/Inactive Account status -------------------------------------------------
