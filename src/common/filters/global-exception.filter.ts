@@ -94,11 +94,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		// Return development response (rich debug context)
 		const devResponseBody = {
 			...baseResponseBody,
-			context,
-			timestamp: new Date().toISOString(),
-			path: req.url,
-			method: req.method,
-			errorDetails: exception instanceof Error ? { name: exception.name, stack: exception.stack } : exception,
+			error: {
+				context,
+				timestamp: new Date().toISOString(),
+				path: req.url,
+				method: req.method,
+				...(exception instanceof Error ? { name: exception.name, stack: exception.stack } : { exception }),
+			},
 		};
 
 		res.status(statusCode).json(devResponseBody);

@@ -27,11 +27,11 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, ISucc
 				}
 
 				return {
-					message,
-					status,
-					...(data && { data }),
-					...resObject,
 					success: true,
+					status,
+					message,
+					...resObject,
+					...(data && { data }),
 				};
 			}),
 		);
