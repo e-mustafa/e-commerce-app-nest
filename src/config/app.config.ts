@@ -97,6 +97,14 @@ export const appConfig = registerAs('app', () => ({
 		defaultOrder: sortOrderEnum.ASC,
 		defaultLimit: 10,
 	},
+	review: {
+		attachments: {
+			maxSize: 10 * 1024 * 1024, // 10MB
+			maxCount: 4,
+		},
+		defaultOrder: sortOrderEnum.ASC,
+		defaultLimit: 10,
+	},
 	cart: {
 		defaultOrder: sortOrderEnum.DESC,
 		defaultLimit: 10,

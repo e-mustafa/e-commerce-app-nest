@@ -64,7 +64,6 @@ const brandSchema = SchemaFactory.createForClass(Brand);
 
 // Indexes -------------------------------------------------
 // Indexes for query performance and hierarchy lookups
-brandSchema.index({ name: 1, parentId: 1 });
 brandSchema.index({ publishedAt: 1, order: 1 });
 
 export const brandModel = MongooseModule.forFeature([{ name: Brand.name, schema: brandSchema }]);

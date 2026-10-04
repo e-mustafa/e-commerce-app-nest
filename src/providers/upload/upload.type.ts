@@ -18,24 +18,24 @@ export type TDeleteAttachment = {
 
 export type CloudinaryResourceType = 'image' | 'video' | 'raw';
 
-export interface TUploadFileOptions {
+export type TUploadFileOptions = {
 	file: IFile;
 	folder?: string;
 	filename?: string;
 	prefix?: string;
 	contentType?: string;
 	storageDisk?: StorageDiskEnum;
-}
+};
 
 export interface IUploadService {
 	uploadFile(options: TUploadFileOptions): Promise<TAttachment>;
-	uploadMultipleFiles(files: IFile[], folder?: string): Promise<TAttachment[]>;
+	uploadMultipleFiles(files: IFile[], folder?: string, prefix?: string, filename?: string): Promise<TAttachment[]>;
 	deleteFile(id: string, resourceType?: CloudinaryResourceType): Promise<void>;
 	deleteMultipleFiles(files: TDeleteAttachment[]): Promise<void>;
 }
 
 export type TUploadDirOption = string | ((req: Request) => string);
-export interface IFieldOption {
+export type IFieldOption = {
 	name: string;
 	maxCount?: number;
-}
+};

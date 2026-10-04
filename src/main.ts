@@ -36,6 +36,7 @@ import { envConfig } from './config';
 	app.useGlobalInterceptors(new TransformResponseInterceptor()); //
 	app.useGlobalPipes(
 		new StandardSchemaValidationPipe({
+			validateCustomDecorators: true,
 			transform: true,
 			// exceptionFactory: (errors) => ({ success: false, message: 'Fields validation error', errors }),
 			exceptionFactory: (errors) => {
@@ -62,4 +63,3 @@ import { envConfig } from './config';
 
 //! 👈🏻👈🏻👈🏻👈🏻 <-- Github link
 // https://github.com/e-mustafa/e-commerce-app-nest
-

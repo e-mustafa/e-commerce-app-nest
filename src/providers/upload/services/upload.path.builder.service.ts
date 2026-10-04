@@ -55,7 +55,7 @@ export class UploadPathBuilder {
 	 */
 	static getProductLocation(
 		productId: string,
-		subFolder: 'main' | 'gallery' | 'variants' = 'gallery',
+		subFolder: 'main' | 'gallery' | 'variants' | 'reviews' = 'gallery',
 	): Required<Pick<TStorageUploadConfig, 'folder' | 'prefix'>> {
 		return {
 			folder: `products/${productId}/${subFolder}`,

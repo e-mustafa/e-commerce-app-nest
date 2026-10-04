@@ -46,7 +46,7 @@ export class LocalUploadService implements IUploadService {
 				generatedName = `${generatedName}${fileExt}`;
 			}
 		} else {
-			generatedName = `${filename || prefix}_${Date.now()}_${Math.round(Math.random() * 1e9)}${fileExt}`;
+			generatedName = `${filename || prefix || file.fieldname}_${Date.now()}_${Math.round(Math.random() * 1e9)}${fileExt}`;
 		}
 
 		// Resolve full directory path dynamically (e.g., /app/uploads/users/123/profile)
