@@ -28,6 +28,9 @@ export class Cart {
 	items: CartItem[];
 
 	@Prop({ type: Number, default: 0 })
+	subTotal: number;
+
+	@Prop({ type: Number, default: 0 })
 	totalPrice: number;
 }
 

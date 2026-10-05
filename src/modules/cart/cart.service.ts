@@ -1,13 +1,15 @@
 import { NotFoundException } from '@/common/exceptions';
 import { Id } from '@/common/types';
 import { Injectable } from '@nestjs/common';
-import { IProduct } from '../product';
+import { IProduct, productGeneralSelect } from '../product';
 import { ProductRepository } from '../product/product.repository';
 import type * as I from './cart-service.interface';
 import { CartRepository } from './cart.repository';
-import { CartItem, HCart } from './cart.types';
+import type { HCart, HCartWProduct, ICartItem, ICartResponse } from './cart.types';
 
-const selectCartProduct = 'title excerpt images slug price';
+const selectCartProduct = productGeneralSelect || 'title excerpt images slug price';
+
+//TODO - recalculate cart subtotal, total and item subtotal when get
 
 @Injectable()
 export class CartService {
@@ -28,6 +30,70 @@ export class CartService {
 			cart = await this.cartRepo.create({ user: userId, items: [] });
 		}
 		return cart;
+	}
+
+	/**
+	 * Retrieves cart and dynamically updates item prices against database state.
+	 */
+	async getCartAndSyncPrices(userId: string): Promise<ICartResponse> {
+		const cart = await this.cartRepo
+			.findOne({ user: userId })
+			.populate<HCartWProduct>({ path: 'items.product', select: selectCartProduct })
+			.exec();
+
+		if (!cart) {
+			throw new NotFoundException('Cart not found');
+		}
+
+		let hasPriceChanged = false;
+		const priceChangeMessages: string[] = [];
+		let calculatedSubTotal = 0;
+
+		const validItems = [];
+
+		for (const item of cart.items) {
+			const product = item.product;
+
+			// Drop items that are deleted or marked inactive by admin
+			if (!product || !product.publishedAt) {
+				hasPriceChanged = true;
+				priceChangeMessages.push(`An item in your cart is no longer available.`);
+				continue;
+			}
+
+			// Evaluate active unit price (Discount price takes precedence)
+			const currentUnitPrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
+
+			// Check if admin modified price since last cart update
+			if (item.pricePerUnit !== currentUnitPrice) {
+				hasPriceChanged = true;
+				priceChangeMessages.push(
+					`Price for "${product.title}" changed from $${item.pricePerUnit} to $${currentUnitPrice}.`,
+				);
+				item.pricePerUnit = currentUnitPrice;
+			}
+
+			// Calculate line item subtotal
+			item.subTotal = item.pricePerUnit * item.quantity;
+			calculatedSubTotal += item.subTotal;
+
+			validItems.push(item);
+		}
+
+		// Update cart state in database if adjustments occurred
+		cart.items = validItems;
+		cart.subTotal = calculatedSubTotal;
+		cart.totalPrice = calculatedSubTotal; // Add tax or shipping calculation here if required
+
+		if (hasPriceChanged) {
+			await cart.save();
+		}
+
+		return {
+			cart,
+			hasPriceChanged,
+			priceChangeMessages,
+		};
 	}
 
 	async addToCart({ userId, productId, quantity }: I.IAddToCartPayload) {
@@ -129,7 +195,7 @@ export class CartService {
 
 		if (products.length === 0) throw new NotFoundException('Products not found.');
 
-		const itemsToAdd: CartItem[] = products.map((p) => {
+		const itemsToAdd: ICartItem[] = products.map((p) => {
 			const item = items.find((i) => i.productId === p._id.toString());
 			let quantity = item?.quantity || 1;
 			if (quantity > p.stock) quantity = p.stock;
