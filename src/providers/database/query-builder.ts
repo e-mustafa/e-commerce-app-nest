@@ -14,7 +14,18 @@ import { IPaginatedResult, PopulateResult } from '../../common/types';
 
 export type Id = Types.ObjectId | string;
 
-export type LeanResult<R, T> = R extends Array<unknown> ? T[] : R extends null ? T | null : T;
+// Helper type to extract the raw entity interface from HydratedDocument
+export type UnwrapHydrated<T> = T extends HydratedDocument<infer U> ? U : T;
+
+// Automatically computes the plain Javascript object (POJO) return type for lean queries
+export type LeanResult<R, T> =
+	R extends Array<unknown>
+		? UnwrapHydrated<T>[]
+		: R extends IPaginatedResult<infer U>
+			? IPaginatedResult<UnwrapHydrated<U>>
+			: R extends null
+				? UnwrapHydrated<T> | null
+				: UnwrapHydrated<T>;
 
 export type ExtractItemType<R> = R extends Array<infer U> ? U : R extends IPaginatedResult<infer V> ? V : R;
 
@@ -33,8 +44,6 @@ export type CountDocumentsOptions<T> = Pick<QueryOptions<T>, 'lean' | 'timestamp
 };
 
 export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
-	// private isLean = false;
-
 	constructor(
 		private readonly Model: Model<T>,
 		private readonly query: Query<unknown, T>,
@@ -62,7 +71,6 @@ export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
 	}
 
 	lean<LeanType = LeanResult<R, T>>(options: LeanOptions = {}): RepositoryQueryBuilder<T, LeanType> {
-		// this.isLean = true;
 		this.query.lean({ virtuals: true, ...options });
 		return this as unknown as RepositoryQueryBuilder<T, LeanType>;
 	}
