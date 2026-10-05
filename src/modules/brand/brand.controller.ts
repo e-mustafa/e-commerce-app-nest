@@ -1,5 +1,6 @@
 import { AUser } from '@/common/decorators';
 import type { IUserBody } from '@/common/types';
+import { Cache } from '@/providers/redis/decorators';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import type * as dto from './brand.dto';
 import * as S from './brand.dto';
@@ -18,12 +19,14 @@ export class BrandController {
 	constructor(private readonly service: BrandService) {}
 
 	@Get(routes.listBrands)
+	@Cache()
 	async listBrands(@AUser() user: IUserBody, @Query({ schema: S.brandQuerySchema.query }) query: dto.BrandQueryDTO) {
 		const { data, metadata } = await this.service.listBrands({ user, ...query });
 		return { metadata, data };
 	}
 
 	@Get(routes.getBrand)
+	@Cache()
 	async getBrand(@AUser() user: IUserBody, @Param({ schema: S.brandParamIdSchema.params }) params: dto.BrandParamIdDTO) {
 		const data = await this.service.getBrand(user, params.brandId);
 		return { data };

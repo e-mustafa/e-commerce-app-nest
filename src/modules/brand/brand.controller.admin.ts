@@ -1,6 +1,7 @@
 import { AUser, AuthAdmin } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
+import { InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
 import { ICreateBrandPayload, IUpdateBrandPayload } from './brand-service.interface';
@@ -25,7 +26,6 @@ const routes = {
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
 @AuthAdmin() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
-// TODO - add receptor to add domain to uploaded file url - if used local upload
 @Controller(routes.base)
 export class BrandAdminController {
 	constructor(private readonly service: BrandService) {}
@@ -43,6 +43,7 @@ export class BrandAdminController {
 	}
 
 	@Post(routes.createBrand)
+	@InvalidateCache('/brands')
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -67,6 +68,7 @@ export class BrandAdminController {
 	}
 
 	@Patch(routes.updateBrand)
+	@InvalidateCache()
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -79,13 +81,13 @@ export class BrandAdminController {
 	@Patch(routes.updateBrand)
 	async updateBrand(
 		@AUser('_id') userId: Id,
-		@Param('brandId') brandId: Id,
+		@Param({ schema: S.updateBrandSchema.params }) params: dto.BrandParamIdDTO,
 		@Body({ schema: S.updateBrandSchema.body }) body: dto.UpdateBrandDTO,
 		@UploadedFiles() files: { icon?: IFile[]; cover?: IFile[] },
 	) {
 		const data = await this.service.updateBrandAdmin({
 			...body,
-			brandId,
+			brandId: params.brandId,
 			userId,
 			files: {
 				icon: files?.icon?.[0] || undefined,
@@ -96,14 +98,16 @@ export class BrandAdminController {
 	}
 
 	@Delete(routes.deleteBrand)
-	async deleteBrand(@Param('brandId') brandId: Id) {
-		const data = await this.service.deleteBrandAdmin(brandId);
+	@InvalidateCache()
+	async deleteBrand(@Param({ schema: S.brandParamIdSchema.params }) params: dto.BrandParamIdDTO) {
+		const data = await this.service.deleteBrandAdmin(params.brandId);
 		return { message: 'Brand deleted successfully', data };
 	}
 
 	@Patch(routes.togglePublished)
-	async togglePublished(@Param('brandId') brandId: Id) {
-		const data = await this.service.togglePublishedAdmin(brandId);
+	@InvalidateCache()
+	async togglePublished(@Param({ schema: S.brandParamIdSchema.params }) params: dto.BrandParamIdDTO) {
+		const data = await this.service.togglePublishedAdmin(params.brandId);
 		return { message: `Brand ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };
 	}
 }

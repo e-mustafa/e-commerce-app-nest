@@ -16,4 +16,11 @@ export interface IBrand extends Brand {
 }
 
 export type HBrand = HydratedDocument<IBrand>;
-export type BrandModel = Model<HBrand>;
+export type BrandModel = Model<IBrand>;
+
+export type IBrandGeneral = Pick<
+	IBrand,
+	'_id' | 'name' | 'slug' | 'icon' | 'cover' | 'description' | 'publishedAt' | 'order'
+>;
+
+export type IBrandMin = Pick<IBrand, '_id' | 'name' | 'slug' | 'icon' | 'description'>;

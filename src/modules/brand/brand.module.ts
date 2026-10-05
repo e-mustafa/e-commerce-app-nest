@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { BrandAdminController } from './brand.controller.admin';
-import { BrandController } from './brand.controller.public';
+import { BrandController } from './brand.controller';
 import { brandModel } from './brand.model';
 import { BrandRepository } from './brand.repository';
 import { BrandService } from './brand.service';

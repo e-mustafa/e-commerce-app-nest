@@ -62,6 +62,9 @@ export const appConfig = registerAs('app', () => ({
 		diskFile: StorageDiskFileEnum.TEMP as StorageDiskFileEnum,
 		provider: (process.env.UPLOAD_STORAGE_PROVIDER || StorageProviderEnum.CLOUDINARY) as StorageProviderEnum,
 	},
+	cache: {
+		defaultTTL: 60 * 10, // 10 minutes
+	},
 	user: {
 		avatar: {
 			maxSize: 2 * 1024 * 1024, // 2MB
@@ -96,6 +99,7 @@ export const appConfig = registerAs('app', () => ({
 		},
 		defaultOrder: sortOrderEnum.ASC,
 		defaultLimit: 10,
+		cacheTTL: 60 * 5,
 	},
 	review: {
 		attachments: {
@@ -106,6 +110,10 @@ export const appConfig = registerAs('app', () => ({
 		defaultLimit: 10,
 	},
 	cart: {
+		defaultOrder: sortOrderEnum.DESC,
+		defaultLimit: 10,
+	},
+	coupon: {
 		defaultOrder: sortOrderEnum.DESC,
 		defaultLimit: 10,
 	},

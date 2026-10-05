@@ -5,12 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, QueryFilter } from 'mongoose';
 import { Brand } from './brand.model';
-import { type BrandModel, HBrand, IBrand } from './brand.types';
+import { type BrandModel, IBrand } from './brand.types';
 
 @Injectable()
-export class BrandRepository extends BaseRepository<HBrand> {
-	// Corrected filter syntax by removing $all for non-array Date field
-	protected activeFilter: QueryFilter<HBrand> = {
+export class BrandRepository extends BaseRepository<IBrand> {
+	protected activeFilter: QueryFilter<IBrand> = {
 		publishedAt: { $ne: null, $lt: new Date() },
 		$or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
 	};
@@ -19,7 +18,7 @@ export class BrandRepository extends BaseRepository<HBrand> {
 		super(brandModel);
 	}
 
-	protected override getDefaultFilter(): QueryFilter<HBrand> {
+	protected override getDefaultFilter(): QueryFilter<IBrand> {
 		return this.activeFilter;
 	}
 
@@ -29,11 +28,11 @@ export class BrandRepository extends BaseRepository<HBrand> {
 	 */
 	findByIdOrSlug(id: Id, options?: IQueryOptions): Promise<IBrand | null> {
 		const isObjectId = isValidObjectId(id);
-		const filter: QueryFilter<HBrand> = isObjectId
+		const filter: QueryFilter<IBrand> = isObjectId
 			? { $or: [{ _id: id }, { slug: id as string }] }
 			: { slug: id as string };
 
-		return this.findOne(filter, options).lean<IBrand>().exec();
+		return this.findOne(filter, options).lean().exec();
 	}
 
 	/**
@@ -41,7 +40,7 @@ export class BrandRepository extends BaseRepository<HBrand> {
 	 */
 	isExist(slug: string, name: string, options?: IQueryOptions): Promise<IBrand | null> {
 		return this.findOne({ $or: [{ slug }, { name }] }, { ...options, ignoreDefaultFilters: true })
-			.lean<IBrand>()
+			.lean()
 			.exec();
 	}
 }

@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
 import { GlobalExceptionFilter } from './common/filters';
+import { ImagePathInterceptor } from './common/interceptors';
 import { appConfig, envConfig } from './config';
 import { validateEnv } from './config/env.schema';
 import AuthModule from './modules/auth/auth.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CategoryModule } from './modules/category/category.module';
+import { CouponModule } from './modules/coupon/coupon.module';
 import { ProductModule } from './modules/product/product.module';
 import { ReviewModule } from './modules/review/review.module';
 import { UserModule } from './modules/user/user.module';
@@ -54,6 +56,7 @@ import { UploadModule } from './providers/upload/upload.module';
 		ProductModule,
 		CartModule,
 		ReviewModule,
+		CouponModule,
 		// NotificationModule,
 	],
 	controllers: [],
@@ -61,6 +64,11 @@ import { UploadModule } from './providers/upload/upload.module';
 		{
 			provide: APP_FILTER,
 			useClass: GlobalExceptionFilter, // NestJS will instantiate this class and inject envConfig automatically
+		},
+		{
+			// add domain to uploaded file url - if no domain is provided
+			provide: APP_INTERCEPTOR,
+			useClass: ImagePathInterceptor,
 		},
 	],
 })
