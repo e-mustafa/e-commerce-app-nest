@@ -1,6 +1,7 @@
 import { AUser, AuthAdmin } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
+import { InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
 import { ICreateCategoryPayload, IUpdateCategoryPayload } from './category-service.interface';
@@ -48,6 +49,7 @@ export class CategoryAdminController {
 	}
 
 	@Post(routes.createCategory)
+	@InvalidateCache('/categories')
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -72,6 +74,7 @@ export class CategoryAdminController {
 	}
 
 	@Patch(routes.updateCategory)
+	@InvalidateCache()
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -101,12 +104,14 @@ export class CategoryAdminController {
 	}
 
 	@Delete(routes.deleteCategory)
+	@InvalidateCache()
 	async deleteCategory(@Param('categoryId') categoryId: Id) {
 		const data = await this.service.deleteCategoryAdmin(categoryId);
 		return { message: 'Category deleted successfully', data };
 	}
 
 	@Patch(routes.togglePublished)
+	@InvalidateCache()
 	async togglePublished(@Param('categoryId') categoryId: Id) {
 		const data = await this.service.togglePublishedAdmin(categoryId);
 		return { message: `Category ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };

@@ -5,11 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, QueryFilter } from 'mongoose';
 import { Category } from './category.model';
-import { type CategoryModel, HCategory, ICategory } from './category.types';
+import { type CategoryModel, ICategory } from './category.types';
 
 @Injectable()
-export class CategoryRepository extends BaseRepository<HCategory> {
-	protected activeFilter: QueryFilter<HCategory> = {
+export class CategoryRepository extends BaseRepository<ICategory> {
+	protected activeFilter: QueryFilter<ICategory> = {
 		publishedAt: { $ne: null, $lt: new Date() },
 		$or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
 	};
@@ -18,7 +18,7 @@ export class CategoryRepository extends BaseRepository<HCategory> {
 		super(categoryModel);
 	}
 
-	protected override getDefaultFilter(): QueryFilter<HCategory> {
+	protected override getDefaultFilter(): QueryFilter<ICategory> {
 		return this.activeFilter;
 	}
 
@@ -28,7 +28,7 @@ export class CategoryRepository extends BaseRepository<HCategory> {
 	 */
 	findByIdOrSlug(id: Id, options?: IQueryOptions): Promise<ICategory | null> {
 		const isObjectId = isValidObjectId(id);
-		const filter: QueryFilter<HCategory> = isObjectId
+		const filter: QueryFilter<ICategory> = isObjectId
 			? { $or: [{ _id: id }, { slug: id as string }] }
 			: { slug: id as string };
 

@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { CategoryAdminController } from './category.controller.admin';
-import { CategoryController } from './category.controller.public';
+import { CategoryController } from './category.controller';
 import { categoryModel } from './category.model';
 import { CategoryService } from './category.service';
 import { CategoryRepository } from './category.repository';
