@@ -1,6 +1,7 @@
 import { AUser, Auth } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
+import { Cache, InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
 import type * as dto from './review.dto';
@@ -27,6 +28,7 @@ export class ReviewController {
 
 	@Auth(true)
 	@Get(['/reviews/', routes.listReviews, routes.listProductReviews]) // optional productId param
+	@Cache()
 	async listReviews(
 		@AUser() user: IUserBody,
 		@Param({ schema: S.reviewParamProductIdOptSchema.params }) params: dto.ReviewParamsProductIdOptDTO,
@@ -37,6 +39,7 @@ export class ReviewController {
 	}
 
 	@Get(routes.getReview)
+	@Cache()
 	async getReview(@Param({ schema: S.reviewParamIdSchema.params }) params: dto.ReviewParamIdDTO) {
 		const data = await this.service.getReview(params.reviewId);
 		return { data };
@@ -44,6 +47,7 @@ export class ReviewController {
 
 	@Auth()
 	@Post(routes.createReview)
+	@InvalidateCache('/reviews')
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().review.attachments.maxCount | 2,
@@ -66,6 +70,7 @@ export class ReviewController {
 
 	@Auth()
 	@Patch(routes.updateReview)
+	@InvalidateCache()
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().review.attachments.maxCount | 2,
@@ -90,6 +95,7 @@ export class ReviewController {
 
 	@Auth()
 	@Delete(routes.deleteReview)
+	@InvalidateCache()
 	async deleteReview(@AUser() user: IUserBody, @Param('reviewId') reviewId: Id) {
 		await this.service.deleteReview(user, reviewId);
 		return { message: 'Review deleted successfully' };

@@ -7,7 +7,7 @@ import { QueryFilter } from 'mongoose';
 import { selectUserInfo } from './user.constants';
 import { GetUsersQueryDTO, UpdateProfileDTO } from './user.dto';
 import { UserRepository } from './user.repository';
-import { HUser, IGeneralUser, IUser } from './user.types';
+import { HUser, IUser, IUserGeneral } from './user.types';
 
 @Injectable()
 export default class UserService {
@@ -115,7 +115,7 @@ export default class UserService {
 		return targetUser;
 	}
 
-	async getUsers(userId: Id, { page = 1, limit = 10, search }: GetUsersQueryDTO): Promise<IPaginatedResult<IGeneralUser>> {
+	async getUsers(userId: Id, { page = 1, limit = 10, search }: GetUsersQueryDTO): Promise<IPaginatedResult<IUserGeneral>> {
 		// 1. Query block records to find all bidirectional block relationships
 
 		// 3. Build query filter utilizing $nin operator
@@ -142,6 +142,5 @@ export default class UserService {
 		return { lastSeenAt: targetUser.lastSeenAt ?? null };
 	}
 }
-
 
 // TODO - add service to change user role
