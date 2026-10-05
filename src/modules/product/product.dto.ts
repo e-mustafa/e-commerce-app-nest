@@ -45,7 +45,7 @@ const productFields = {
 	stockType: z.string('Stock Type is required').min(1, 'Stock Type is required').optional(),
 
 	maxOrderSell: z.number({ error: 'Max Order Sell is required' }).min(0, 'Max Order Sell cannot be negative').optional(),
-	minWarnQuantity: z
+	lowStockAlert: z
 		.number({ error: 'Min Warn Quantity is required' })
 		.min(0, 'Min Warn Quantity cannot be negative')
 		.optional(),
@@ -97,7 +97,7 @@ export const createProductSchema = {
 		stock: productFields.stock,
 		stockType: productFields.stockType,
 		maxOrderSell: productFields.maxOrderSell,
-		minWarnQuantity: productFields.minWarnQuantity,
+		lowStockAlert: productFields.lowStockAlert,
 
 		brand: productFields.brand,
 		category: productFields.category,

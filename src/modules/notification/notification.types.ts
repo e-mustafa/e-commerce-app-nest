@@ -1,6 +1,6 @@
 import { Id } from '@/common/types';
 import { HydratedDocument, Model } from 'mongoose';
-import { IGeneralUser } from '../user';
+import { IUserGeneral } from '../user';
 import { NotificationTypeEnum } from './notification.enum';
 import { Notification } from './notification.model';
 
@@ -13,7 +13,7 @@ export interface INotification extends Notification {
 
 export type HNotification = HydratedDocument<INotification>;
 export type NotificationModel = Model<HNotification>;
-export type INotificationWSender = INotification & { sendBy: IGeneralUser };
+export type INotificationWSender = INotification & { sendBy: IUserGeneral };
 
 export type NotificationPayload = {
 	sendTo: Id;

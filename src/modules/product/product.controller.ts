@@ -1,5 +1,7 @@
 import { AUser } from '@/common/decorators';
 import type { IUserBody } from '@/common/types';
+import { appConfig } from '@/config';
+import { Cache } from '@/providers/redis/decorators';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import type * as dto from './product.dto';
 import * as S from './product.dto';
@@ -13,6 +15,7 @@ const routes = {
 };
 
 @Controller(routes.base)
+@Cache(appConfig().product.cacheTTL)
 export class ProductController {
 	constructor(private readonly service: ProductService) {}
 

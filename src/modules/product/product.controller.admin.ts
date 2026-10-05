@@ -1,6 +1,7 @@
 import { AUser, AuthAdmin } from '@/common/decorators';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
+import { InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
 import type * as dto from './product.dto';
@@ -44,6 +45,7 @@ export class ProductAdminController {
 	}
 
 	@Post(routes.createProduct)
+	@InvalidateCache('/products')
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().product.attachments.maxCount || 10,
@@ -61,6 +63,7 @@ export class ProductAdminController {
 	}
 
 	@Patch(routes.updateProduct)
+	@InvalidateCache()
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().product.attachments.maxCount || 10,
@@ -79,6 +82,7 @@ export class ProductAdminController {
 	}
 
 	@Delete(routes.deleteProduct)
+	@InvalidateCache()
 	async deleteProduct(@Param('productId') productId: Id) {
 		const data = await this.service.deleteProductAdmin(productId);
 		return { message: 'Product deleted successfully', data };
@@ -86,6 +90,7 @@ export class ProductAdminController {
 	//TODO - set as toggle delete/restore
 
 	@Patch(routes.togglePublished)
+	@InvalidateCache()
 	async togglePublished(@Param('productId') productId: Id) {
 		const data = await this.service.togglePublishedAdmin(productId);
 		return { message: `Product ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };

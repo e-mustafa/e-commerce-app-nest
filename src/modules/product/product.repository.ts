@@ -5,11 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, QueryFilter } from 'mongoose';
 import { Product } from './product.model';
-import { type ProductModel, HProduct, IProduct } from './product.types';
+import { type ProductModel, IProduct } from './product.types';
 
 @Injectable()
-export class ProductRepository extends BaseRepository<HProduct> {
-	protected activeFilter: QueryFilter<HProduct> = {
+export class ProductRepository extends BaseRepository<IProduct> {
+	protected activeFilter: QueryFilter<IProduct> = {
 		publishedAt: { $ne: null, $lt: new Date() },
 		$or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
 	};
@@ -18,7 +18,7 @@ export class ProductRepository extends BaseRepository<HProduct> {
 		super(productModel);
 	}
 
-	protected override getDefaultFilter(): QueryFilter<HProduct> {
+	protected override getDefaultFilter(): QueryFilter<IProduct> {
 		return this.activeFilter;
 	}
 
@@ -28,7 +28,7 @@ export class ProductRepository extends BaseRepository<HProduct> {
 	 */
 	findByIdOrSlug(id: Id, options?: IQueryOptions): Promise<IProduct | null> {
 		const isObjectId = isValidObjectId(id);
-		const filter: QueryFilter<HProduct> = isObjectId
+		const filter: QueryFilter<IProduct> = isObjectId
 			? { $or: [{ _id: id }, { slug: id as string }] }
 			: { slug: id as string };
 
@@ -41,7 +41,7 @@ export class ProductRepository extends BaseRepository<HProduct> {
 	 */
 	// findByIdOrSlug(id: Id, options?: IQueryOptions) {
 	// 	const isObjectId = isValidObjectId(id);
-	// 	const filter: QueryFilter<HProduct> = isObjectId
+	// 	const filter: QueryFilter<IProduct> = isObjectId
 	// 		? { $or: [{ _id: id }, { slug: id as string }] }
 	// 		: { slug: id as string };
 

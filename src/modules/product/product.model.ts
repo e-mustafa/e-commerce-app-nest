@@ -89,7 +89,7 @@ export class Product {
 	maxOrderSell?: number;
 
 	@Prop({ type: Number, required: true, min: [0, 'Minimum warn quantity cannot be negative'], default: 1 })
-	minWarnQuantity?: number; // for waring users about low quantity
+	lowStockAlert?: number; // for waring users about low quantity
 
 	// Categorization Relations
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Category.name, required: true })

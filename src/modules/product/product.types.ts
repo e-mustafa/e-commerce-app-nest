@@ -11,4 +11,11 @@ export interface IProduct extends Product {
 }
 
 export type HProduct = HydratedDocument<IProduct>;
-export type ProductModel = Model<HProduct>;
+export type ProductModel = Model<IProduct>;
+
+export interface IProductGeneral extends Pick<
+	IProduct,
+	'_id' | 'id' | 'slug' | 'title' | 'images' | 'price' | 'discountPrice' | 'category' | 'brand' | 'publishedAt'
+> {}
+
+export interface IProductMin extends Pick<IProduct, '_id' | 'id' | 'slug' | 'title' | 'images'> {}
