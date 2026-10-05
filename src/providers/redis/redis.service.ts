@@ -13,6 +13,9 @@ export interface IRedisService {
 	expire(key: string, seconds: number): Promise<number>;
 	increment(key: string): Promise<number>;
 	incrementWithExpiration(key: string, expirationInSeconds: number): Promise<number>;
+	deletePattern(key: string): Promise<void>;
+	getByPattern<TValue>(key: string, isJson: boolean): Promise<TValue[]>;
+	getByPatternWithKeys<TValue>(key: string, isJson: boolean): Promise<Array<{ key: string; value: TValue }>>;
 }
 
 @Injectable()
