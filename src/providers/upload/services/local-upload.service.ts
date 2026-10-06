@@ -1,4 +1,4 @@
-import { safeMoveFile } from '@/common/utils/file.util';
+import { safeMoveFile } from '@/common/utils';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import fs from 'node:fs/promises';
 import path, { extname } from 'node:path';
@@ -17,7 +17,7 @@ export class LocalUploadService implements IUploadService {
 
 	constructor() {
 		// Define base local storage folder relative to project root
-		this.baseUploadDir = path.join(process.cwd(), 'uploads');
+		this.baseUploadDir = path.join(__dirname, '../../../', 'uploads');
 	}
 
 	private getResourceType(mimetype: string): CloudinaryResourceType {

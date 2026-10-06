@@ -6,15 +6,18 @@ import { $ZodIssue } from 'zod/v4/core';
 import { AppModule } from './app.module';
 import { ValidationErrorsException } from './common/exceptions';
 import { TransformResponseInterceptor } from './common/interceptors';
+import { logStartTimeMiddleware } from './common/middleware';
 import { formatZodErrors } from './common/validation';
 import { envConfig } from './config';
-import { logStartTimeMiddleware } from './common/middleware';
 
 (async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
 		// instrument: ObserveInstrument,
 		cors: true,
+		// cookies: true,
+		bodyParser: true,
 	});
+	// app.set('trust proxy', true);
 
 	app.use(helmet());
 	app.enableCors();
@@ -27,11 +30,6 @@ import { logStartTimeMiddleware } from './common/middleware';
 	// 	doubleCsrfProtection, // This is the default CSRF protection middleware.
 	// } = doubleCsrf(doubleCsrfOptions);
 	// app.use(doubleCsrfProtection);
-
-	// Serve static files from the uploads directory
-	// app.useStaticAssets(join(process.cwd(), 'uploads'), {
-	// 	prefix: '/uploads/',
-	// });
 
 	app.use(logStartTimeMiddleware);
 	// app.useGlobalFilters(GlobalExceptionFilter);
@@ -47,7 +45,7 @@ import { logStartTimeMiddleware } from './common/middleware';
 		}),
 	); // use zod validation by schema
 
-	app.setGlobalPrefix(envConfig().apiBaseUrlPrefix);
+	app.setGlobalPrefix(envConfig().apiBaseUrlPrefix, { exclude: ['uploads'] });
 	app.enableVersioning({
 		type: VersioningType.URI,
 		defaultVersion: envConfig().apiBaseUrlVersion,

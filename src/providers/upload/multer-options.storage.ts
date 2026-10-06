@@ -27,8 +27,8 @@ export const setMulterStorage = (config: AppConfig, dir: TUploadDirOption = 'gen
 				const cleanResolvedDir = resolvedDir.replace(/^(\/?temp\/?)/i, '');
 
 				const baseDir = saveInTemp
-					? path.resolve(process.cwd(), localFolderName, 'temp', cleanResolvedDir)
-					: path.resolve(process.cwd(), localFolderName, resolvedDir);
+					? path.join(__dirname, '../../', localFolderName, 'temp', cleanResolvedDir)
+					: path.join(__dirname, '../../', localFolderName, resolvedDir);
 
 				// ? path.join(os.tmpdir(), localFolderName, resolvedDir)
 
