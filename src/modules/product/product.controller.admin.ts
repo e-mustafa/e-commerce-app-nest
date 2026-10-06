@@ -9,7 +9,7 @@ import * as S from './product.dto';
 import { ProductService } from './product.service';
 
 const routes = {
-	base: 'admin/products',
+	base: '/admin/products',
 
 	listProducts: '/',
 	createProduct: '/',
@@ -20,6 +20,8 @@ const routes = {
 
 	togglePublished: '/:productId/publish',
 };
+
+const invalidations = ['/products', '/products/:identifier', '/products/:productId'];
 
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
@@ -45,7 +47,7 @@ export class ProductAdminController {
 	}
 
 	@Post(routes.createProduct)
-	@InvalidateCache('/products')
+	@InvalidateCache(invalidations[0])
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().product.attachments.maxCount || 10,
@@ -63,7 +65,7 @@ export class ProductAdminController {
 	}
 
 	@Patch(routes.updateProduct)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().product.attachments.maxCount || 10,
@@ -82,7 +84,7 @@ export class ProductAdminController {
 	}
 
 	@Delete(routes.deleteProduct)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async deleteProduct(@Param('productId') productId: Id) {
 		const data = await this.service.deleteProductAdmin(productId);
 		return { message: 'Product deleted successfully', data };
@@ -90,7 +92,7 @@ export class ProductAdminController {
 	//TODO - set as toggle delete/restore
 
 	@Patch(routes.togglePublished)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async togglePublished(@Param('productId') productId: Id) {
 		const data = await this.service.togglePublishedAdmin(productId);
 		return { message: `Product ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };

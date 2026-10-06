@@ -22,6 +22,8 @@ const routes = {
 	togglePublished: '/:brandId/publish',
 };
 
+const invalidations = ['/brands', '/brands/:brandId'];
+
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
@@ -43,7 +45,7 @@ export class BrandAdminController {
 	}
 
 	@Post(routes.createBrand)
-	@InvalidateCache('/brands')
+	@InvalidateCache(invalidations[0])
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -68,7 +70,7 @@ export class BrandAdminController {
 	}
 
 	@Patch(routes.updateBrand)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -98,14 +100,14 @@ export class BrandAdminController {
 	}
 
 	@Delete(routes.deleteBrand)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async deleteBrand(@Param({ schema: S.brandParamIdSchema.params }) params: dto.BrandParamIdDTO) {
 		const data = await this.service.deleteBrandAdmin(params.brandId);
 		return { message: 'Brand deleted successfully', data };
 	}
 
 	@Patch(routes.togglePublished)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async togglePublished(@Param({ schema: S.brandParamIdSchema.params }) params: dto.BrandParamIdDTO) {
 		const data = await this.service.togglePublishedAdmin(params.brandId);
 		return { message: `Brand ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };

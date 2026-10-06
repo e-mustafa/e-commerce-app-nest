@@ -22,6 +22,8 @@ const routes = {
 	togglePublished: '/:categoryId/publish',
 };
 
+const invalidations = ['/categories', '/categories/:categoryId'];
+
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
@@ -49,7 +51,7 @@ export class CategoryAdminController {
 	}
 
 	@Post(routes.createCategory)
-	@InvalidateCache('/categories')
+	@InvalidateCache(invalidations[0])
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -74,7 +76,7 @@ export class CategoryAdminController {
 	}
 
 	@Patch(routes.updateCategory)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	@UseUpload({
 		fields: [
 			{ name: 'icon', maxCount: 1 },
@@ -104,14 +106,14 @@ export class CategoryAdminController {
 	}
 
 	@Delete(routes.deleteCategory)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async deleteCategory(@Param('categoryId') categoryId: Id) {
 		const data = await this.service.deleteCategoryAdmin(categoryId);
 		return { message: 'Category deleted successfully', data };
 	}
 
 	@Patch(routes.togglePublished)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async togglePublished(@Param('categoryId') categoryId: Id) {
 		const data = await this.service.togglePublishedAdmin(categoryId);
 		return { message: `Category ${data?.publishedAt ? 'published' : 'unpublished'} successfully`, data };

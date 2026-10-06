@@ -13,7 +13,6 @@ const routes = {
 	getBrand: '/:brandId',
 };
 
-// TODO - add receptor to add domain to uploaded file url - if used local upload
 @Controller(routes.base)
 export class BrandController {
 	constructor(private readonly service: BrandService) {}

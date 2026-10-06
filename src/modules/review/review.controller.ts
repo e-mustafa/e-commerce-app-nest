@@ -21,7 +21,8 @@ export const routes = {
 	deleteReview: 'reviews/:reviewId',
 } as const;
 
-// TODO - add receptor to add domain to uploaded file url - if used local upload
+export const invalidations = ['/reviews/', '/products/:productId/reviews', '/reviews/:reviewId'];
+
 @Controller(routes.base)
 export class ReviewController {
 	constructor(private readonly service: ReviewService) {}
@@ -47,7 +48,7 @@ export class ReviewController {
 
 	@Auth()
 	@Post(routes.createReview)
-	@InvalidateCache('/reviews')
+	@InvalidateCache(...invalidations)
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().review.attachments.maxCount | 2,
@@ -70,7 +71,7 @@ export class ReviewController {
 
 	@Auth()
 	@Patch(routes.updateReview)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	@UseUpload({
 		fieldName: 'images',
 		maxCount: appConfig().review.attachments.maxCount | 2,
@@ -95,7 +96,7 @@ export class ReviewController {
 
 	@Auth()
 	@Delete(routes.deleteReview)
-	@InvalidateCache()
+	@InvalidateCache(...invalidations)
 	async deleteReview(@AUser() user: IUserBody, @Param('reviewId') reviewId: Id) {
 		await this.service.deleteReview(user, reviewId);
 		return { message: 'Review deleted successfully' };
