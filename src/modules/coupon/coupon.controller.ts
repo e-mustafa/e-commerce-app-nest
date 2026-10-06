@@ -13,7 +13,6 @@ const routes = {
 	validateCoupon: '/validate/:code',
 };
 
-// TODO - add receptor to add domain to uploaded file url - if used local upload
 @Controller(routes.base)
 export class CouponController {
 	constructor(private readonly service: CouponService) {}

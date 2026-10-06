@@ -125,7 +125,7 @@ export class ProductService {
 				costPrice: body.costPrice,
 				stockType: body.stockType,
 				maxOrderSell: body.maxOrderSell,
-				minWarnQuantity: body.minWarnQuantity,
+				lowStockAlert: body.lowStockAlert,
 				sku: body.sku,
 				tags: body.tags,
 			});
@@ -178,11 +178,15 @@ export class ProductService {
 
 		const setSlug =
 			body.slug && body.slug === product.slug ? product.slug : slugify(body.slug || body.title || product.title);
-
+		// console.log('body.publishedAt', body.publishedAt);
 		// Determine correct publishedAt timestamp
 		let publishedAt = product.publishedAt;
-		if (body.isPublished !== undefined) {
-			publishedAt = body.isPublished ? body.publishedAt || new Date() : null;
+		if (body.isPublished) {
+			if (body.publishedAt !== undefined && body.publishedAt !== product.publishedAt) {
+				publishedAt = body.publishedAt || new Date();
+			}
+		} else {
+			publishedAt = null;
 		}
 
 		try {
@@ -206,7 +210,7 @@ export class ProductService {
 							...(body.costPrice !== undefined && { costPrice: body.costPrice }),
 							...(body.stockType !== undefined && { stockType: body.stockType }),
 							...(body.maxOrderSell !== undefined && { maxOrderSell: body.maxOrderSell }),
-							...(body.minWarnQuantity !== undefined && { minWarnQuantity: body.minWarnQuantity }),
+							...(body.lowStockAlert !== undefined && { minWarnQuantity: body.lowStockAlert }),
 							...(body.sku !== undefined && { sku: body.sku }),
 							...(body.tags !== undefined && { tags: body.tags }),
 						},
