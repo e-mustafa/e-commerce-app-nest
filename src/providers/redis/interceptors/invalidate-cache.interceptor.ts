@@ -1,4 +1,4 @@
-import { type EnvConfig, envConfig } from '@/config/env.config'; // Ensure path matches your project structure
+import { type EnvConfig, envConfig } from '@/config/env.config';
 import { CallHandler, ExecutionContext, Inject, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
@@ -26,23 +26,28 @@ export class InvalidateCacheInterceptor implements NestInterceptor {
 			context.getClass(),
 		]);
 
-		let patternsToInvalidate: string[] = [];
+		const patternsToInvalidate: string[] = [];
 
 		if (metadataPatterns && metadataPatterns.length > 0) {
-			// Format user-provided patterns using system environment configuration
-			patternsToInvalidate = metadataPatterns.map((pattern) => this.formatPattern(pattern));
+			// Format user-provided patterns with dynamic parameters resolution
+			for (const pattern of metadataPatterns) {
+				patternsToInvalidate.push(...this.formatPattern(pattern, req));
+			}
 		} else {
-			// Automatically derive the base module pattern if no pattern is explicitly provided
-			patternsToInvalidate = [this.extractBaseModulePattern(req)];
+			// Automatically derive targeted module and item patterns
+			patternsToInvalidate.push(...this.extractAutoPatterns(req));
 		}
 
 		return next.handle().pipe(
 			tap(async () => {
-				for (const pattern of patternsToInvalidate) {
+				// Deduplicate patterns to prevent redundant Redis calls
+				const uniquePatterns = Array.from(new Set(patternsToInvalidate));
+
+				for (const pattern of uniquePatterns) {
 					try {
 						await this.redisService.deletePattern(pattern);
 						this.logger.log(`[cache_Redis] Successfully invalidated pattern: ${pattern}`);
-					} catch (error) {
+					} catch (error: unknown) {
 						this.logger.warn(`[cache_Redis] Failed to invalidate pattern ${pattern}: `, error);
 					}
 				}
@@ -64,39 +69,66 @@ export class InvalidateCacheInterceptor implements NestInterceptor {
 	}
 
 	/**
-	 * Formats given pattern string into a valid Redis key pattern using the global API prefix
+	 * Formats pattern into Redis keys, resolving dynamic route parameters (e.g. :productId)
 	 */
-	private formatPattern(pattern: string): string {
-		if (pattern.startsWith('${cachePrefix}')) {
-			return pattern.endsWith('*') ? pattern : `${pattern}*`;
+	private formatPattern(pattern: string, req: Request): string[] {
+		if (pattern.startsWith(`${cachePrefix}`)) {
+			return [pattern.endsWith('*') ? pattern : `${pattern}*`];
 		}
 
-		const cleanPattern = pattern.startsWith('/') ? pattern : `/${pattern}`;
-		const fullPrefix = this.getFullApiPrefix();
+		let resolvedPattern = pattern;
+		const params = req.params as Record<string, string>;
 
-		if (cleanPattern.startsWith(fullPrefix)) {
-			return `${cachePrefix}${cleanPattern}*`;
-		}
-
-		return `${cachePrefix}${fullPrefix}${cleanPattern}*`;
-	}
-
-	/**
-	 * Extracts base module path from request URL (e.g., /api/v1/products/123 -> ${cachePrefix}/api/v1/products*)
-	 */
-	private extractBaseModulePattern(req: Request): string {
-		const rawUrl = (req.originalUrl || req.url).split('?')[0];
-		const fullPrefix = this.getFullApiPrefix();
-
-		if (rawUrl.startsWith(fullPrefix)) {
-			const routeAfterPrefix = rawUrl.slice(fullPrefix.length);
-			const firstSegment = routeAfterPrefix.split('/').filter(Boolean)[0];
-
-			if (firstSegment) {
-				return `${cachePrefix}${fullPrefix}/${firstSegment}*`;
+		if (params && Object.keys(params).length > 0) {
+			for (const [key, value] of Object.entries(params)) {
+				resolvedPattern = resolvedPattern.replace(`:${key}`, value).replace(`{${key}}`, value);
 			}
 		}
 
-		return `${cachePrefix}${rawUrl}*`;
+		const fullPrefix = this.getFullApiPrefix();
+		const cleanPattern = resolvedPattern.startsWith('/') ? resolvedPattern : `/${resolvedPattern}`;
+		const basePath = cleanPattern.startsWith(fullPrefix) ? cleanPattern : `${fullPrefix}${cleanPattern}`;
+
+		// Handle root list pattern invalidation specifically to avoid wiping sibling sub-paths
+		if (!pattern.includes(':') && !pattern.includes('*')) {
+			return [`${cachePrefix}${basePath}`, `${cachePrefix}${basePath}?*`];
+		}
+
+		const finalPattern = `${cachePrefix}${basePath}`;
+		return [finalPattern.endsWith('*') ? finalPattern : `${finalPattern}*`];
+	}
+
+	/**
+	 * Extracts targeted base module pattern and specific param pattern automatically
+	 */
+	private extractAutoPatterns(req: Request): string[] {
+		const fullPrefix = this.getFullApiPrefix();
+		let cleanUrl = (req.originalUrl || req.url).split('?')[0];
+
+		if (cleanUrl.includes('/admin/')) {
+			cleanUrl = cleanUrl.replace('/admin/', '/');
+		} else if (cleanUrl.endsWith('/admin')) {
+			cleanUrl = cleanUrl.replace('/admin', '');
+		}
+
+		const params = req.params as Record<string, string>;
+		const results: string[] = [];
+
+		const routeAfterPrefix = cleanUrl.startsWith(fullPrefix) ? cleanUrl.slice(fullPrefix.length) : cleanUrl;
+		const firstSegment = routeAfterPrefix.split('/').filter(Boolean)[0];
+
+		if (firstSegment) {
+			const baseModulePath = `${cachePrefix}${fullPrefix}/${firstSegment}`;
+			results.push(baseModulePath, `${baseModulePath}?*`);
+		}
+
+		const paramValues = Object.values(params || {});
+		if (paramValues.length > 0 && firstSegment) {
+			for (const val of paramValues) {
+				results.push(`${cachePrefix}${fullPrefix}/${firstSegment}/${val}*`);
+			}
+		}
+
+		return results;
 	}
 }

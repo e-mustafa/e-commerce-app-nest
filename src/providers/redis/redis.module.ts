@@ -3,6 +3,7 @@ import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import chalk from 'chalk';
 import { createClient } from 'redis';
+import { CacheInterceptor, InvalidateCacheInterceptor } from './interceptors';
 import { REDIS_CLIENT, RedisService } from './redis.service';
 
 @Global()
@@ -44,7 +45,9 @@ import { REDIS_CLIENT, RedisService } from './redis.service';
 			},
 		},
 		RedisService,
+		CacheInterceptor,
+		InvalidateCacheInterceptor,
 	],
-	exports: [RedisService, REDIS_CLIENT],
+	exports: [RedisService, REDIS_CLIENT, CacheInterceptor, InvalidateCacheInterceptor],
 })
 export class RedisModule {}
