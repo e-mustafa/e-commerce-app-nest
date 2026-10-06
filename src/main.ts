@@ -8,6 +8,7 @@ import { ValidationErrorsException } from './common/exceptions';
 import { TransformResponseInterceptor } from './common/interceptors';
 import { formatZodErrors } from './common/validation';
 import { envConfig } from './config';
+import { logStartTimeMiddleware } from './common/middleware';
 
 (async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
@@ -32,6 +33,7 @@ import { envConfig } from './config';
 	// 	prefix: '/uploads/',
 	// });
 
+	app.use(logStartTimeMiddleware);
 	// app.useGlobalFilters(GlobalExceptionFilter);
 	app.useGlobalInterceptors(new TransformResponseInterceptor()); //
 	app.useGlobalPipes(

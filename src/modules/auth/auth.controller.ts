@@ -1,9 +1,8 @@
-import { Auth } from '@/common/decorators';
-import { AUser } from '@/common/decorators/request.decorator';
+import { AUser, Auth } from '@/common/decorators';
 import type { Id } from '@/common/types';
-import { Body, Controller, Cookies, Delete, Get, HttpStatus, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Cookies, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { ProviderEnum } from '../user/user.enums';
+import { ProviderEnum } from '../user';
 import type * as dto from './auth.dto';
 import * as S from './auth.dto';
 import AuthService from './services/auth.service';
@@ -75,11 +74,12 @@ export default class AuthController {
 	}
 
 	@Post(routes.login)
+	@HttpCode(HttpStatus.OK) // Set the HTTP status code to 200
 	async login(@Req() req: Request, @Body({ schema: S.loginSchema.body }) body: dto.LoginDTO) {
 		const data = await this.service.login({
 			...body,
-			clientIp: req.ip,
-			userAgent: req.headers['user-agent'] || req.get('User-Agent'),
+			clientIp: req.ip || req.socket.remoteAddress,
+			userAgent: req.get('user-agent'),
 		});
 		const message = data.requiresReactivation
 			? 'Account is deactivated. Confirmation required to reactivate.'
@@ -92,8 +92,8 @@ export default class AuthController {
 	async refreshAccessToken(@Req() req: Request, @Cookies() cookies: dto.RefreshAccessTokenDTO) {
 		const data = await this.service.refreshAccessToken({
 			authorization: cookies.refreshToken || '',
-			clientIp: req.ip,
-			userAgent: req.headers['user-agent'] || req.get('User-Agent'),
+			clientIp: req.ip || req.socket.remoteAddress,
+			userAgent: req.get('user-agent'),
 		});
 		return { data };
 	}
@@ -107,10 +107,17 @@ export default class AuthController {
 		const { isNew, tokens } = await this.service.socialLogin_google({
 			...body,
 			provider: ProviderEnum.GOOGLE,
-			clientIp: req.ip,
-			userAgent: req.headers['user-agent'] || req.get('User-Agent'),
+			clientIp: req.ip || req.socket.remoteAddress,
+			userAgent: req.get('user-agent'),
 		});
+
+		// Attach authentication cookies to HTTP response headers
 		this.cookieService.setAuthCookies(res, tokens);
+
+		// Dynamically set status code (201 Created for new users, 200 OK for existing users)
+		const statusCode = isNew ? HttpStatus.CREATED : HttpStatus.OK;
+		res.status(statusCode);
+
 		if (isNew) {
 			res.status(HttpStatus.CREATED);
 			return { status: 201, message: 'Account created successfully', data: tokens };
@@ -228,8 +235,8 @@ export default class AuthController {
 	) {
 		const data = await this.service.reactivateMyAccount({
 			...body,
-			clientIp: req.ip,
-			userAgent: req.headers['user-agent'] || req.get('User-Agent'),
+			clientIp: req.ip || req.socket.remoteAddress,
+			userAgent: req.get('user-agent'),
 		});
 		return { message: 'Account activated and login successfully.', data };
 	}

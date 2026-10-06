@@ -21,6 +21,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		const req = ctx.getRequest<Request>();
 		const res = ctx.getResponse<Response>();
 
+		const startTime = req.startAt;
+
 		let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 		let message: string | string[] = 'Internal server error';
 		let context = 'server_error';
@@ -64,10 +66,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 			message = exception.message;
 		}
 
-		const statusLabel = `${statusCode}`.startsWith('4') ? 'Fail' : 'Error';
+		const statusLabel = `${statusCode}`.startsWith('4') ? 'Failed' : 'Error';
 
 		// Log error appropriately based on status code severity
-		const logMessage = `[${req.method}] ${req.url} - Status: ${statusCode} - Message: ${Array.isArray(message) ? message.join(', ') : message}`;
+		const logMessage = `[${req.method}] ${req.url} - Status: ${statusCode}:${statusLabel} - ${startTime ? `${Date.now() - startTime} ms` : ''} - Message: ${Array.isArray(message) ? message.join(', ') : message}`;
 		if (statusCode >= 500) {
 			this.logger.error(logMessage, exception instanceof Error ? exception.stack : undefined, context);
 		} else {
@@ -79,6 +81,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 			success: false,
 			message,
 			statusCode,
+			duration: startTime ? `${Date.now() - startTime}ms` : undefined,
 			status: statusLabel,
 			errors,
 			isOperational,

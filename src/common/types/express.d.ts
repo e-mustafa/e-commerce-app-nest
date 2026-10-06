@@ -1,5 +1,5 @@
-import { IUserBody } from '../../providers/database/database.type';
-import { IJwtPayload } from '../../providers/security';
+import { IUserBody } from '@/providers/database';
+import { IJwtPayload } from '@/providers/security';
 
 // Standard global Express augmentation for mixed/public routes
 declare global {
@@ -9,6 +9,7 @@ declare global {
 			user?: IUserBody;
 			decoded?: IJwtPayload;
 			body: Record<string, unknown>;
+			startAt?: number;
 		}
 	}
 }
