@@ -8,7 +8,7 @@ import * as S from './product.dto';
 import { ProductService } from './product.service';
 
 const routes = {
-	base: 'products',
+	base: '/products',
 
 	listProducts: '/',
 	getProduct: '/:identifier',

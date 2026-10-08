@@ -40,7 +40,7 @@ const productFields = {
 	discountPrice: z.number({ error: 'Discount Price is required' }).min(0, 'Discount Price cannot be negative').optional(),
 	costPrice: z.number({ error: 'Cost Price is required' }).min(0, 'Cost Price cannot be negative').optional(),
 
-	stock: z.number({ error: 'Stock is required' }).min(0, 'Stock cannot be negative'),
+	stock: z.coerce.number({ error: 'Stock is required' }).min(0, 'Stock cannot be negative'),
 	// stockType: z.enum(['fixed', 'percentage'], { error: 'Stock Type is required' }),
 	stockType: z.string('Stock Type is required').min(1, 'Stock Type is required').optional(),
 

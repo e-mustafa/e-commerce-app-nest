@@ -21,7 +21,7 @@ const routes = {
 	togglePublished: '/:productId/publish',
 };
 
-const invalidations = ['/products', '/products/:identifier', '/products/:productId'];
+export const invalidations = ['/products', '/products/:identifier', '/products/:productId'];
 
 // UseGuards(AuthGuard, RolesGuard)
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
