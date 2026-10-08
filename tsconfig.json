@@ -21,7 +21,7 @@
 		"strictPropertyInitialization": false, // Unused variables and parameters checks
 		"removeComments": false, // remove comments
 		"noUnusedParameters": true, // Code quality strictness
-		"sourceMap": false, // remove sourcemap
+		// "sourceMap": false, // remove sourcemap
 		// "ignoreDeprecations": "6.0",
 		// "baseUrl": "./",
 		"paths": { "@/*": ["./src/*"] } // Resolves the path aliases declared in tsconfig.json

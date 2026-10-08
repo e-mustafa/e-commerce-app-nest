@@ -13,5 +13,11 @@
 		},
 		"target": "es2023"
 	},
-	"minify": true
+	// Disable minification to prevent single-line output
+	"minify": false,
+	// Enable source maps for proper debugging
+	"sourceMaps": true,
+	"module": {
+		"type": "commonjs"
+	}
 }
