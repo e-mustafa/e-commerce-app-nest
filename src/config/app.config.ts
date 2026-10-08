@@ -117,6 +117,11 @@ export const appConfig = registerAs('app', () => ({
 		defaultOrder: sortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
+	order: {
+		defaultOrder: sortOrderEnum.DESC,
+		defaultLimit: 10,
+		orderNumberPrefix: 'ORD-',
+	},
 	notification: {
 		defaultOrder: sortOrderEnum.DESC,
 		defaultLimit: 10,
