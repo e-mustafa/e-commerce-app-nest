@@ -1,11 +1,12 @@
 import { NotFoundException } from '@/common/exceptions';
 import { Id } from '@/common/types';
+import { IQueryOptions } from '@/providers/database/query-builder';
 import { Injectable } from '@nestjs/common';
 import { IProduct, productGeneralSelect } from '../product';
 import { ProductRepository } from '../product/product.repository';
 import type * as I from './cart-service.interface';
 import { CartRepository } from './cart.repository';
-import type { HCart, HCartWProduct, ICartItem, ICartResponse } from './cart.types';
+import type { HCart, HCartWProduct, ICart, ICartItem, ICartResponse } from './cart.types';
 
 const selectCartProduct = productGeneralSelect || 'title excerpt images slug price';
 
@@ -27,7 +28,7 @@ export class CartService {
 	private async getRawCart(userId: Id): Promise<HCart> {
 		let cart = await this.cartRepo.findOne({ user: userId }).exec();
 		if (!cart) {
-			cart = await this.cartRepo.create({ user: userId, items: [] });
+			return await this.cartRepo.create({ user: userId, items: [] });
 		}
 		return cart;
 	}
@@ -127,12 +128,13 @@ export class CartService {
 		}
 
 		this.recalculateCartTotal(cart);
-		return (await cart.save()).populate('items.product', selectCartProduct);
+		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
 	}
 
-	async getCart(userId: Id): Promise<HCart> {
+	async getCart(userId: Id): Promise<ICart> {
 		let cart = await this.cartRepo
 			.findOne({ user: userId })
+			.lean()
 			.populate({ path: 'items.product', select: selectCartProduct })
 			.exec();
 
@@ -148,7 +150,7 @@ export class CartService {
 		cart.items = cart.items.filter((item) => item.product.toString() !== productId.toString());
 
 		this.recalculateCartTotal(cart);
-		return (await cart.save()).populate('items.product', selectCartProduct);
+		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
 	}
 
 	async incrementProduct(userId: Id, productId: Id) {
@@ -166,7 +168,7 @@ export class CartService {
 		item.subTotal = item.quantity * item.pricePerUnit;
 		this.recalculateCartTotal(cart);
 
-		return (await cart.save()).populate('items.product', selectCartProduct);
+		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
 	}
 
 	async decrementProduct(userId: Id, productId: Id) {
@@ -182,7 +184,7 @@ export class CartService {
 		item.subTotal = item.quantity * item.pricePerUnit;
 		this.recalculateCartTotal(cart);
 
-		return (await cart.save()).populate('items.product', selectCartProduct);
+		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
 	}
 
 	async syncCart({ userId, items }: I.ISyncCartPayload) {
@@ -216,5 +218,14 @@ export class CartService {
 
 		this.recalculateCartTotal(cart);
 		return (await cart.save()).populate('items.product', selectCartProduct);
+	}
+
+	async clearCart(userId: Id, options?: IQueryOptions) {
+		const cart = await this.cartRepo.findOne({ user: userId }, options).exec();
+		if (!cart) return true;
+		cart.items = [];
+
+		this.recalculateCartTotal(cart);
+		return await (await cart.save()).toObject();
 	}
 }

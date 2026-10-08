@@ -11,6 +11,7 @@ const routes = {
 	getCart: '/',
 	addToCart: '/',
 	syncCart: '/sync',
+	clearCart: '/clear',
 	removeProduct: '/:productId',
 	incrementProduct: '/:productId/quantity/increment',
 	decrementProduct: '/:productId/quantity/decrement',
@@ -22,10 +23,7 @@ export class CartController {
 	constructor(private readonly service: CartService) {}
 
 	@Get(routes.getCart)
-	async getCart(
-		@AUser('_id') userId: Id,
-		// @Query({ schema: getCartQuerySchema.query }) query: GetCartQueryDTO
-	) {
+	async getCart(@AUser('_id') userId: Id) {
 		const data = await this.service.getCart(userId);
 		return { data };
 	}
@@ -46,6 +44,12 @@ export class CartController {
 	async removeProduct(@AUser('_id') userId: Id, @Param('productId') productId: Id) {
 		const data = await this.service.removeProduct(userId, productId);
 		return { message: 'Product removed successfully', data };
+	}
+
+	@Delete(routes.clearCart)
+	async clearCart(@AUser('_id') userId: Id) {
+		const data = await this.service.clearCart(userId);
+		return { message: 'Cart cleared successfully', data };
 	}
 
 	@Patch(routes.incrementProduct)
