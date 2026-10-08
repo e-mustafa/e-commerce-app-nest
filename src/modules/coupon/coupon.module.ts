@@ -19,6 +19,6 @@ import { CouponService } from './coupon.service';
 	],
 	controllers: [CouponController, CouponAdminController],
 	providers: [CouponService, CouponRepository],
-	exports: [CouponService, CouponRepository],
+	exports: [CouponService, CouponRepository, CouponService],
 })
 export class CouponModule {}

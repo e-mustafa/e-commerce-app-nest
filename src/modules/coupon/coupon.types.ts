@@ -16,6 +16,7 @@ export interface ICoupon extends Coupon {
 
 export type HCoupon = HydratedDocument<ICoupon>;
 export type CouponModel = Model<ICoupon>;
+export type ICouponGeneral = Pick<ICoupon, 'code' | 'type' | 'value' | 'maxDiscountAmount' | 'description'>;
 
 export type ICouponWData = ICoupon & {
 	createdBy: IUserGeneral;
@@ -27,6 +28,7 @@ export type ICouponWData = ICoupon & {
 export interface ICouponValidationResult {
 	couponId: string;
 	code: string;
+	shippingCost: number;
 	discountAmount: number;
 	finalTotal: number;
 	applicableItemsCount: number;

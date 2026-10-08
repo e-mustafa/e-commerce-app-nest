@@ -43,7 +43,12 @@ export class CouponService {
 	/**
 	 * Fully validates coupon against user & cart, and calculates applied discount.
 	 */
-	async validateAndCalculateDiscount(userId: string, code: string, cart: IPopulatedCart): Promise<ICouponValidationResult> {
+	async validateAndCalculateDiscount(
+		userId: Id,
+		code: string,
+		cart: IPopulatedCart,
+		shippingCost: number = 0,
+	): Promise<ICouponValidationResult> {
 		// 1. Check coupon existence and basic date validity
 		const coupon = await this.couponRepo.findActiveByCode(code);
 		if (!coupon) {
@@ -93,6 +98,13 @@ export class CouponService {
 			}
 		} else if (coupon.type === CouponTypeEnum.FIXED) {
 			discountAmount = Math.min(coupon.value, eligibleSubTotal);
+		} else if (coupon.type === CouponTypeEnum.FREE_SHIPPING) {
+			discountAmount = shippingCost;
+
+			// Cap discount to max limit if configured
+			if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
+				discountAmount = coupon.maxDiscountAmount;
+			}
 		}
 
 		const finalTotal = Math.max(0, cart.subTotal - discountAmount);
@@ -101,6 +113,7 @@ export class CouponService {
 			couponId: coupon._id.toString(),
 			code: coupon.code,
 			discountAmount: Number(discountAmount.toFixed(2)),
+			shippingCost: Number(shippingCost.toFixed(2)),
 			finalTotal: Number(finalTotal.toFixed(2)),
 			applicableItemsCount: eligibleItems.length,
 		};

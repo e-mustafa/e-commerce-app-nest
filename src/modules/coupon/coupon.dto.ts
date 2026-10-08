@@ -6,7 +6,7 @@ import { couponApplicableOnTypes, CouponTypeEnum, couponTypes } from './coupon.e
 
 const { defaultLimit = 10, defaultOrder = sortOrderEnum.DESC } = appConfig().coupon || {};
 
-const couponFields = {
+export const couponFields = {
 	code: z
 		.string('Code is required')
 		.regex(/^[A-Z0-9]+$/, 'Code must be alphanumeric and uppercase')
