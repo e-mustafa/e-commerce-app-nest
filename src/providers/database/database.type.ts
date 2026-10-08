@@ -1,10 +1,34 @@
 import { IUser } from '@/modules/user';
-import { Types } from 'mongoose';
+import { ClientSession, MongooseUpdateQueryOptions, Types } from 'mongoose';
 
 export type ObjId = Types.ObjectId;
 export type Id = Types.ObjectId | string;
 
 export interface IUserBody extends Omit<IUser, 'password'> {}
+
+export interface IUpdateOptions extends MongooseUpdateQueryOptions {
+	session?: ClientSession;
+	runValidators?: boolean;
+	ignoreDefaultFilters?: boolean;
+}
+
+export interface IDeleteOptions {
+	session?: ClientSession;
+	strict?: boolean | string;
+	ignoreDefaultFilters?: boolean;
+}
+
+export interface IUpdateResult {
+	exist: boolean;
+	success: boolean;
+	modifiedCount: number;
+}
+
+export interface IDeleteResult {
+	exist: boolean;
+	success: boolean;
+	deletedCount: number;
+}
 
 // Helper type to handle items inside arrays or paginated data
 type PopulateItem<R, P> =

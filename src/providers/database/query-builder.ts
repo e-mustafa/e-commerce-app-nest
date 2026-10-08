@@ -118,3 +118,8 @@ export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
 		return result as unknown as R;
 	}
 }
+
+export const searchRegex = (search: string, flags: string = 'i') => {
+	const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return new RegExp(escapedSearch, flags);
+};

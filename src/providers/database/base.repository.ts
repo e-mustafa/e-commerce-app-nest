@@ -1,41 +1,20 @@
 import {
 	Aggregate,
 	AggregateOptions,
+	AnyBulkWriteOperation,
 	ClientSession,
 	HydratedDocument,
 	InsertManyOptions,
 	Model,
-	MongooseUpdateQueryOptions,
+	MongooseBulkWriteOptions,
+	MongooseBulkWriteResult,
 	PipelineStage,
 	QueryFilter,
 	SaveOptions,
 	UpdateQuery,
 } from 'mongoose';
+import { IDeleteOptions, IDeleteResult, IUpdateOptions, IUpdateResult } from './database.type';
 import { CountDocumentsOptions, Id, IQueryOptions, RepositoryQueryBuilder } from './query-builder';
-
-export interface IUpdateOptions extends MongooseUpdateQueryOptions {
-	session?: ClientSession;
-	runValidators?: boolean;
-	ignoreDefaultFilters?: boolean;
-}
-
-export interface IDeleteOptions {
-	session?: ClientSession;
-	strict?: boolean | string;
-	ignoreDefaultFilters?: boolean;
-}
-
-export interface IUpdateResult {
-	exist: boolean;
-	success: boolean;
-	modifiedCount: number;
-}
-
-export interface IDeleteResult {
-	exist: boolean;
-	success: boolean;
-	deletedCount: number;
-}
 
 export abstract class BaseRepository<T> {
 	constructor(protected readonly Model: Model<T>) {}
@@ -126,7 +105,7 @@ export abstract class BaseRepository<T> {
 	}
 
 	async save(doc: HydratedDocument<T>, options?: SaveOptions): Promise<HydratedDocument<T>> {
-		return (await doc.save(options)) as unknown as HydratedDocument<T>;
+		return (await doc.save({ validateBeforeSave: true, ...options })) as unknown as HydratedDocument<T>;
 	}
 
 	async create(data: Partial<T>, options?: SaveOptions): Promise<HydratedDocument<T>> {
@@ -200,6 +179,13 @@ export abstract class BaseRepository<T> {
 	async distinct<K = unknown>(key: string, filter: QueryFilter<T>, options?: IQueryOptions): Promise<K[]> {
 		const finalFilter = this.combineFilters(filter, !!options?.ignoreDefaultFilters);
 		return (await this.Model.distinct(key, finalFilter, options)) as unknown as K[];
+	}
+
+	async bulkWrite(
+		operations: AnyBulkWriteOperation[],
+		options?: MongooseBulkWriteOptions,
+	): Promise<MongooseBulkWriteResult> {
+		return this.Model.bulkWrite(operations, options);
 	}
 
 	aggregate<K = Record<string, unknown>>(pipeline?: PipelineStage[], options?: AggregateOptions): Aggregate<K[]> {
