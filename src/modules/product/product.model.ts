@@ -4,6 +4,7 @@ import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Brand } from '../brand/brand.model';
 import { Category } from '../category/category.model';
+import { Review } from '../review/review.model';
 import { User } from '../user/user.model';
 
 // -----------------------------------------------------------------------------
@@ -113,7 +114,7 @@ export class Product {
 	ratingsAverage?: number;
 
 	@Prop({ type: Number, default: 0 })
-	ratingsQuantity?: number;
+	ratingCount?: number;
 
 	// System Attributes
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
@@ -136,5 +137,12 @@ productSchema.index({ category: 1, publishedAt: -1 });
 productSchema.index({ price: 1, ratingsAverage: -1 });
 productSchema.index({ publishedAt: 1, order: 1 });
 productSchema.index({ deletedAt: 1 });
+
+// Virtuals for populate reviews --------------------------------------------
+productSchema.virtual('reviews', {
+	localField: '_id',
+	foreignField: 'product',
+	ref: Review.name,
+});
 
 export const productModel = MongooseModule.forFeature([{ name: Product.name, schema: productSchema }]);

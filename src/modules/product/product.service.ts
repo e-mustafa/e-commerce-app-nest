@@ -5,12 +5,26 @@ import { DBImage, sortOrderEnum } from '@/providers/database';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
 import { QueryFilter, Types } from 'mongoose';
+import { brandMinSelect } from '../brand';
 import { BrandRepository } from '../brand/brand.repository';
+import { categoryMinSelect } from '../category';
 import { CategoryRepository } from '../category/category.repository';
-import { AdminRoleEnum, AdminRoles } from '../user';
+import { AdminRoleEnum, AdminRoles, selectGeneralUserInfo } from '../user';
 import type * as I from './product-service.interface';
 import { ProductRepository } from './product.repository';
-import { HProduct, IProduct } from './product.types';
+import { HProduct } from './product.types';
+
+const productPopulates = [
+	{ path: 'brand', select: brandMinSelect },
+	{ path: 'category', select: categoryMinSelect },
+	{ path: 'reviews' },
+];
+
+const productPopulatesAdmin = [
+	{ path: 'user', select: selectGeneralUserInfo },
+	{ path: 'brand', select: brandMinSelect },
+	{ path: 'category', select: categoryMinSelect },
+];
 
 @Injectable()
 export class ProductService {
@@ -53,6 +67,7 @@ export class ProductService {
 			.lean()
 			.sort({ [query.sortBy || 'createdAt']: query.order === sortOrderEnum.ASC ? 1 : -1 })
 			.paginate(query.page, query.limit)
+			.populate(isAdmin ? [{ path: 'reviews' }, ...productPopulatesAdmin] : productPopulates)
 			.exec();
 
 		return products;
@@ -60,7 +75,10 @@ export class ProductService {
 
 	async getProduct(user: IUserBody, identifier: Id) {
 		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
-		const product = await this.productRepo.findByIdOrSlug(identifier, { ignoreDefaultFilters: isAdmin });
+		const product = await this.productRepo
+			.findByIdOrSlug(identifier, { ignoreDefaultFilters: isAdmin })
+			.lean()
+			.populate(isAdmin ? [{ path: 'reviews' }, ...productPopulatesAdmin] : productPopulates);
 		if (!product) throw new NotFoundException('Product not found.');
 
 		return product;
@@ -130,7 +148,7 @@ export class ProductService {
 				tags: body.tags,
 			});
 
-			return product;
+			return product.populate(productPopulatesAdmin);
 		} catch (error) {
 			if (newFiles.length > 0) await this.uploadService.deleteMultipleFiles(newFiles);
 			throw error;
@@ -218,6 +236,7 @@ export class ProductService {
 					{ ignoreDefaultFilters: true },
 				)
 				.lean()
+				.populate(productPopulatesAdmin)
 				.exec();
 
 			return updatedProduct;
@@ -244,6 +263,7 @@ export class ProductService {
 		await this.productRepo
 			.findByIdAndUpdate(productId, { $set: { deletedAt: new Date() } })
 			.lean()
+			.populate(productPopulatesAdmin)
 			.exec();
 	}
 
@@ -255,7 +275,8 @@ export class ProductService {
 
 		const updated = await this.productRepo
 			.findOneAndUpdate({ _id: productId }, { $set: { publishedAt: newState } })
-			.lean<IProduct>()
+			.lean()
+			.populate(productPopulatesAdmin)
 			.exec();
 
 		return updated;
