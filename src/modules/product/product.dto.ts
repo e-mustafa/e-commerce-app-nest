@@ -142,6 +142,8 @@ export const productQuerySchema = {
 		stock: productFields.stock.optional(),
 		stockType: productFields.stockType.optional(),
 
+		sortBy: z.string().default('createdAt').optional(),
+
 		createdBy: generalFields.id.optional(), // only for admin
 	}),
 };

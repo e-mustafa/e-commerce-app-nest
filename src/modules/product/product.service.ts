@@ -51,7 +51,7 @@ export class ProductService {
 		const products = await this.productRepo
 			.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ createdAt: query.order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ [query.sortBy || 'createdAt']: query.order === sortOrderEnum.ASC ? 1 : -1 })
 			.paginate(query.page, query.limit)
 			.exec();
 
