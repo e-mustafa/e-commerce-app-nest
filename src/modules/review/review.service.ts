@@ -5,6 +5,7 @@ import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
 import { QueryFilter } from 'mongoose';
+import { ProductRepository } from '../product/product.repository';
 import { AdminRoleEnum, AdminRoles } from '../user';
 import type * as I from './review-service.interface';
 import { ReviewRepository } from './review.repository';
@@ -14,8 +15,18 @@ import { IReview } from './review.types';
 export class ReviewService {
 	constructor(
 		private readonly reviewRepo: ReviewRepository,
+		private readonly productRepo: ProductRepository,
 		@Inject(UPLOAD_SERVICE) private readonly uploadService: IUploadService,
 	) {}
+
+	/**
+	 * Recalculates product rating statistics and synchronizes with Product document.
+	 */
+	private async syncProductRatingStats(productId: Id): Promise<void> {
+		const stats = await this.reviewRepo.calcAverageRatings(productId);
+		if (!stats) return;
+		await this.productRepo.updateRatingStats(productId, stats);
+	}
 
 	async listReviews({ user, productId, page, limit, order, search, author }: I.IListReviewPayload) {
 		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
@@ -79,6 +90,9 @@ export class ReviewService {
 				images: uploadImages,
 			});
 
+			// Recalculate and update ratings after creation
+			await this.syncProductRatingStats(productId);
+
 			return review;
 		} catch (error) {
 			if (newFiles.length > 0) {
@@ -134,6 +148,9 @@ export class ReviewService {
 
 			if (removeFiles.length > 0) await this.uploadService.deleteMultipleFiles(removeFiles);
 
+			// Recalculate and update ratings after creation
+			await this.syncProductRatingStats(updatedReview.product);
+
 			return updatedReview;
 		} catch (error) {
 			if (newFiles.length > 0) await this.uploadService.deleteMultipleFiles(newFiles);
@@ -157,6 +174,9 @@ export class ReviewService {
 		}
 
 		const [deleted] = await Promise.all([this.reviewRepo.deleteOne({ _id: reviewId }), ...deleteTask]);
+
+		// Recalculate and update ratings after creation
+		await this.syncProductRatingStats(review.product);
 		return deleted;
 	}
 }

@@ -16,4 +16,15 @@ export interface IReview extends Review {
 }
 
 export type HReview = HydratedDocument<IReview>;
-export type ReviewModel = Model<HReview>;
+// export type ReviewModel = Model<HReview>;
+
+export interface ReviewModel extends Model<HReview> {
+	calcAverageRatings(productId: Id): Promise<void>;
+}
+
+// Interface for aggregate calculation result
+export interface RatingAggregateResult {
+	_id: Id;
+	ratingCount: number;
+	ratingsAverage: number;
+}

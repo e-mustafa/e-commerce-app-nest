@@ -11,6 +11,23 @@ import { User } from '../user/user.model';
 	toJSON: { virtuals: true },
 })
 export class Review {
+	// static async calcAverageRatings (productId) {
+	// 	const stats = await this.aggregate([
+	// 		// match product
+	// 		{ $match: { product: productId } },
+
+	// 		// group by product
+	// 		{
+	// 			$group: {
+	// 				_id: '$product',
+	// 				nRating: { $sum: 1 },
+	// 				avgRating: { $avg: '$rating' },
+	// 			},
+	// 		},
+	// 	]);
+	// 	console.log('stats', stats);
+	// };
+
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	author: Id;
 
@@ -58,6 +75,43 @@ const reviewSchema = SchemaFactory.createForClass(Review);
 // Indexes -------------------------------------------------
 // Indexes for query performance and hierarchy lookups
 reviewSchema.index({ author: 1, product: 1 }, { unique: true }); // Ensure a user can only leave one review per product
-reviewSchema.index({ publishedAt: 1, order: 1 });
+reviewSchema.index({ createdAt: -1 });
+
+//
+// reviewSchema.statics.calcAverageRatings = async function (this, productId) {
+// 	const stats = await this.aggregate<RatingAggregateResult>([
+// 		// match product
+// 		{ $match: { product: productId } },
+
+// 		// group by product
+// 		{
+// 			$group: {
+// 				_id: '$product',
+// 				nRating: { $sum: 1 },
+// 				avgRating: { $avg: '$rating' },
+// 			},
+// 		},
+// 	]);
+// 	console.log('stats', stats);
+// 	if (stats && stats.length && stats[0].avgRating && stats[0].nRating) {
+// 		this.db
+// 			.model(Product.name)
+// 			.updateOne({ _id: productId }, { $set: { ratingCount: stats[0].nRating, ratingsAverage: stats[0].avgRating } });
+// 	}
+// };
+
+// Hooks -------------------------------------------------
+// After saving a review, calculate the average rating and update the product
+// reviewSchema.post('save', function () {
+// 	(this.constructor as ReviewModel).calcAverageRatings(this.product);
+// });
 
 export const reviewModel = MongooseModule.forFeature([{ name: Review.name, schema: reviewSchema }]);
+// export const reviewModel = MongooseModule.forFeatureAsync([
+// 	{
+// 		imports: [forwardRef(() => ProductModule)],
+// 		name: Review.name,
+// 		inject: [ProductRepository],
+// 		useFactory: (productRepo: ProductRepository) => createReviewSchema(productRepo),
+// 	},
+// ]);
