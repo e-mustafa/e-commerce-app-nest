@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
+import { searchRegex } from '@/providers/database/query-builder';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { Injectable } from '@nestjs/common';
 import { brandMinSelect, IBrand } from '../brand';
@@ -206,9 +207,8 @@ export class CouponService {
 
 		if (search?.trim()) {
 			// Escape special regex characters to prevent regex injection (ReDoS)
-			const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const searchRegex = { $regex: escapedSearch, $options: 'i' };
-			filter.$or = [{ name: searchRegex }, { slug: searchRegex }, { description: searchRegex }];
+			const text = searchRegex(search);
+			filter.$or = [{ name: text }, { slug: text }, { description: text }];
 		}
 
 		const coupons = await this.couponRepo

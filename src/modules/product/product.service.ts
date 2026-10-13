@@ -2,6 +2,7 @@ import { ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils';
 import { DBImage, sortOrderEnum } from '@/providers/database';
+import { searchRegex } from '@/providers/database/query-builder';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
@@ -50,15 +51,14 @@ export class ProductService {
 
 		if (query.search?.trim()) {
 			// Escape special characters to prevent regex injection attacks
-			const escapedSearch = query.search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const searchRegex = { $regex: escapedSearch, $options: 'i' };
+			const text = searchRegex(query.search);
 			filter.$or = [
-				{ title: searchRegex },
-				{ slug: searchRegex },
-				{ description: searchRegex },
-				{ excerpt: searchRegex },
-				{ model: searchRegex },
-				{ tags: searchRegex },
+				{ title: text },
+				{ slug: text },
+				{ description: text },
+				{ excerpt: text },
+				{ model: text },
+				{ tags: text },
 			];
 		}
 

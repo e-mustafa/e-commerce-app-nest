@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@/common/exceptions';
 import { IPaginatedResult, IUserBody, QueryFilter } from '@/common/types';
 import { sortOrderEnum } from '@/providers/database';
+import { searchRegex } from '@/providers/database/query-builder';
 import { cachePrefix } from '@/providers/redis/interceptors';
 import { RedisService } from '@/providers/redis/redis.service';
 import { Injectable } from '@nestjs/common';
@@ -200,9 +201,9 @@ export class OrderService {
 		if (paymentStatus) filter.paymentStatus = paymentStatus;
 
 		if (search?.trim()) {
-			const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const searchRegex = new RegExp(escapedSearch, 'i');
-			filter.$or = [{ orderNumber: searchRegex }, { note: searchRegex }];
+			// Escape special regex characters to prevent regex injection (ReDoS)
+			const text = searchRegex(search);
+			filter.$or = [{ orderNumber: text }, { note: text }];
 		}
 
 		const orders = await this.orderRepo

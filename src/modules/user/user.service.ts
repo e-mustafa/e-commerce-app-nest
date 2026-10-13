@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@/common/exceptions';
 import type { Id, IFile, IPaginatedResult, IUploadService, IUserBody, QueryFilter } from '@/common/types';
 import { objectIdRegex } from '@/common/validation';
+import { searchRegex } from '@/providers/database/query-builder';
 import { UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
 import { selectUserInfo } from './user.constants';
@@ -121,8 +122,9 @@ export default class UserService {
 		const filter: QueryFilter<IUser> = {};
 
 		if (search && search.trim()) {
-			const searchRegex = { $regex: search.trim(), $options: 'i' };
-			filter.$or = [{ username: searchRegex }, { firstName: searchRegex }, { lastName: searchRegex }];
+			// Escape special regex characters to prevent regex injection (ReDoS)
+			const text = searchRegex(search);
+			filter.$or = [{ username: text }, { firstName: text }, { lastName: text }];
 		}
 
 		// 4. Execute query through user repository with pagination

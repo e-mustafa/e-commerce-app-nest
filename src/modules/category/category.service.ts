@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils/slugify.util';
+import { searchRegex } from '@/providers/database/query-builder';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
@@ -30,9 +31,8 @@ export class CategoryService {
 
 		if (search?.trim()) {
 			// Escape special characters to prevent regex injection attacks
-			const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const searchRegex = { $regex: escapedSearch, $options: 'i' };
-			filter.$or = [{ name: searchRegex }, { slug: searchRegex }, { description: searchRegex }];
+			const text = searchRegex(search);
+			filter.$or = [{ name: text }, { slug: text }, { description: text }];
 		}
 
 		const categories = await this.categoryRepo

@@ -1,3 +1,4 @@
+import { IPaginatedResult, PopulateResult } from '@/common/types';
 import {
 	ClientSession,
 	HydratedDocument,
@@ -10,7 +11,6 @@ import {
 	QueryOptions,
 	Types,
 } from 'mongoose';
-import { IPaginatedResult, PopulateResult } from '@/common/types';
 
 export type Id = Types.ObjectId | string;
 
@@ -119,8 +119,12 @@ export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
 	}
 }
 
-export const searchRegex = (search: string, flags: string = 'i') => {
-	const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-	return new RegExp(escapedSearch, flags);
+/**
+ * Creates a safe and sanitized regular expression for search operations.
+ * Escapes special regex characters to prevent ReDoS attacks.
+ */
+export const searchRegex = (search: string, flags: string = 'i'): RegExp => {
+   // Escape special regex characters to prevent regex injection (ReDoS)
+   const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+   return new RegExp(escapedSearch, flags);
 };
-//TODO - use searchRegex from here

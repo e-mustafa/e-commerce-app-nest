@@ -1,5 +1,6 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
+import { searchRegex } from '@/providers/database/query-builder';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
@@ -40,9 +41,8 @@ export class ReviewService {
 
 		if (search?.trim()) {
 			// Escape special regex characters to prevent regex injection (ReDoS)
-			const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-			const searchRegex = { $regex: escapedSearch, $options: 'i' };
-			filter.$or = [{ title: searchRegex }, { comment: searchRegex }];
+			const text = searchRegex(search);
+			filter.$or = [{ title: text }, { comment: text }];
 		}
 
 		const reviews = await this.reviewRepo
