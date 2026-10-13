@@ -40,11 +40,24 @@ export class OrderItem {
 	@Prop({ type: Number, required: true, min: [1, 'Quantity must be at least 1'], default: 1 })
 	quantity: number;
 
-	@Prop({ type: Number, required: true, min: [0, 'Price Per Unit must be at least 0'] })
-	priceSnapshot: number;
+	@Prop({ type: Number, required: true, min: [0, 'Original price must be at least 0'] })
+	price: number; // Historical original price snapshot
 
-	@Prop({ type: Number, required: true, min: [0, 'Sub Total must be at least 0'], default: 1 })
-	subTotal: number;
+	@Prop({ type: Number, min: [0, 'Discount must be at least 0'], default: 0 })
+	discount: number; // Historical product-level discount per unit snapshot
+
+	@Prop({ type: Number, required: true, min: [0, 'Final unit price must be at least 0'] })
+	finalPrice: number; // Historical final unit price (price - discount)
+
+	@Prop({ type: Number, required: true, min: [0, 'Sub total must be at least 0'] })
+	subTotal: number; // finalPrice * quantity
+
+
+	// @Prop({ type: Number, required: true, min: [0, 'Price Per Unit must be at least 0'] })
+	// priceSnapshot: number;
+
+	// @Prop({ type: Number, required: true, min: [0, 'Sub Total must be at least 0'], default: 1 })
+	// subTotal: number;
 }
 
 @Schema({

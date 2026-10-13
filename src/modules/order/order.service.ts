@@ -73,15 +73,16 @@ export class OrderService {
 		const shippingCost = 0;
 		const taxAmount = 0;
 
-		// 4. Map cart items to order snapshots
+		// 4. Map cart items to order snapshots using real schema fields
 		const itemsToAdd: IOrderItem[] = products.map((p) => {
 			const quantity = cart.items.find((i) => i.product.toString() === p._id.toString())?.quantity || 1;
-			const priceSnapshot = p.discountPrice || p.price;
 			return {
 				product: p._id.toString(),
 				quantity,
-				priceSnapshot,
-				subTotal: quantity * priceSnapshot,
+				price: p.price,
+				discount: p.discount || 0,
+				finalPrice: p.finalPrice,
+				subTotal: Number((quantity * p.finalPrice).toFixed(2)),
 			};
 		});
 
@@ -128,12 +129,12 @@ export class OrderService {
 				},
 			}));
 
-			// 2. Prepare all async mutation tasks
+			// Prepare all async mutation tasks
 			const tasks: Promise<unknown>[] = [
 				// Clear user cart
 				this.cartService.clearCart(userId, session),
 
-				// Stock decrement tasks
+				// Stock decrement tasks using bulkWrite
 				this.productRepo.bulkWrite(stockBulkOperations, { session }),
 			];
 
@@ -148,16 +149,17 @@ export class OrderService {
 				);
 			}
 
-			// 3. Execute all mutation operations concurrently over the transaction session
+			// Execute all mutation operations concurrently over the transaction session
 			await Promise.all(tasks);
 		});
 
-		// 4. Invalidate redis cache for all products that were added to the order
-		Promise.all(
-			itemsToAdd.map((item) => this.redisService.delete(`${cachePrefix}${invalidations}${item.product.toString()}`)),
-		);
+		// 6. Invalidate redis cache for products and lists safely
+		await Promise.all([
+			this.redisService.deletePattern('cache:*/products*'),
+			...itemsToAdd.map((item) => this.redisService.deletePattern(`${cachePrefix}*/products/${item.product.toString()}*`)),
+		]);
 
-		// 5. Return fully populated created order
+		// 7. Return fully populated created order
 		const newOrder = await this.orderRepo
 			.findOne({ _id: createdOrderId, user: userId })
 			.lean()

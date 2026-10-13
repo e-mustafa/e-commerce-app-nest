@@ -1,9 +1,9 @@
-import { Id, IUserBody } from '@/common/types';
+import { Id } from '@/common/types';
 import { HydratedDocument, Model } from 'mongoose';
+import { ICouponGeneral } from '../coupon';
 import { IProductGeneral } from '../product';
-import { Order } from './order.model';
 import { IUserGeneral } from '../user';
-import { ICoupon, ICouponGeneral } from '../coupon';
+import { Order } from './order.model';
 
 export interface IOrder extends Order {
 	_id: Id;
