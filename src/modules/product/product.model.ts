@@ -1,7 +1,7 @@
 import { type Id } from '@/common/types';
 import { DBImage } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema, Query, UpdateQuery } from 'mongoose';
 import { Brand } from '../brand/brand.model';
 import { Category } from '../category/category.model';
 import { Review } from '../review/review.model';
@@ -74,8 +74,11 @@ export class Product {
 	@Prop({ type: Number, required: true, min: [0, 'Price cannot be negative'] })
 	price: number;
 
-	@Prop({ type: Number, min: [0, 'Discount price cannot be negative'], default: 0 })
-	discountPrice?: number;
+	@Prop({ type: Number, min: [0, 'Discount amount cannot be negative'], default: 0 })
+	discount: number;
+
+	@Prop({ type: Number, required: true, index: true })
+	finalPrice: number;
 
 	@Prop({ type: Number, min: [0, 'Cost price cannot be negative'], default: 0 })
 	costPrice?: number;
@@ -137,6 +140,7 @@ productSchema.index({ category: 1, publishedAt: -1 });
 productSchema.index({ price: 1, ratingsAverage: -1 });
 productSchema.index({ publishedAt: 1, order: 1 });
 productSchema.index({ deletedAt: 1 });
+productSchema.index({ name: 'text', description: 'text', excerpt: 'text' });
 
 // Virtuals for populate reviews --------------------------------------------
 productSchema.virtual('reviews', {
@@ -144,5 +148,43 @@ productSchema.virtual('reviews', {
 	foreignField: 'product',
 	ref: Review.name,
 });
+
+productSchema.pre('save', function (this: Product) {
+	if (this.discount > 0 && this.discount < this.price) {
+		this.finalPrice = Number((this.price - this.discount).toFixed(2));
+	} else {
+		this.finalPrice = this.price;
+		this.discount = 0;
+	}
+});
+
+productSchema.pre(
+	['findOneAndUpdate', 'updateOne', 'updateMany'],
+	async function (this: Query<unknown, HydratedDocument<Product>>) {
+		const update = this.getUpdate() as UpdateQuery<Product>;
+
+		if (update && update.$set) {
+			const $set = update.$set;
+
+			// Check if either price or discount is being modified in the update payload
+			if ($set.price !== undefined || $set.discount !== undefined) {
+				// Fetch the existing document from database to handle partial updates safely
+				const currentDoc = await this.model.findOne(this.getQuery()).lean().exec();
+
+				if (currentDoc) {
+					const price = $set.price !== undefined ? $set.price : currentDoc.price;
+					const discount = $set.discount !== undefined ? $set.discount : currentDoc.discount;
+
+					if (discount > 0 && discount < price) {
+						$set.finalPrice = Number((price - discount).toFixed(2));
+					} else {
+						$set.finalPrice = price;
+						$set.discount = 0;
+					}
+				}
+			}
+		}
+	},
+);
 
 export const productModel = MongooseModule.forFeature([{ name: Product.name, schema: productSchema }]);

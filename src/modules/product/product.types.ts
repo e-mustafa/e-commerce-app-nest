@@ -15,7 +15,7 @@ export type ProductModel = Model<IProduct>;
 
 export interface IProductGeneral extends Pick<
 	IProduct,
-	'_id' | 'id' | 'slug' | 'title' | 'images' | 'price' | 'discountPrice' | 'category' | 'brand' | 'publishedAt'
+	'_id' | 'id' | 'slug' | 'title' | 'images' | 'price' | 'discount' | 'finalPrice' | 'category' | 'brand' | 'publishedAt'
 > {}
 
 export interface IProductMin extends Pick<IProduct, '_id' | 'id' | 'slug' | 'title' | 'images'> {}

@@ -37,7 +37,7 @@ const productFields = {
 		.optional(),
 
 	price: z.coerce.number({ error: 'Price is required' }).min(0, 'Price cannot be negative'),
-	discountPrice: z.number({ error: 'Discount Price is required' }).min(0, 'Discount Price cannot be negative').optional(),
+	discount: z.number({ error: 'Discount amount is required' }).min(0, 'Discount amount cannot be negative').optional(),
 	costPrice: z.number({ error: 'Cost Price is required' }).min(0, 'Cost Price cannot be negative').optional(),
 
 	stock: z.coerce.number({ error: 'Stock is required' }).min(0, 'Stock cannot be negative'),
@@ -91,7 +91,7 @@ export const createProductSchema = {
 		description: productFields.description,
 
 		price: productFields.price,
-		discountPrice: productFields.discountPrice,
+		discount: productFields.discount,
 		costPrice: productFields.costPrice,
 
 		stock: productFields.stock,

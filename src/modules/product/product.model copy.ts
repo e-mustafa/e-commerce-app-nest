@@ -65,8 +65,11 @@ export class Product {
 	@Prop({ type: Number, required: true, min: [0, 'Price cannot be negative'] })
 	price: number;
 
-	@Prop({ type: Number, min: [0, 'Discount price cannot be negative'], default: 0 })
-	discountPrice?: number;
+	@Prop({ type: Number, min: [0, 'Discount amount cannot be negative'], default: 0 })
+	discount?: number;
+
+	@Prop({ type: Number, required: true, index: true })
+	finalPrice: number;
 
 	@Prop({ type: Number, min: [0, 'Discount price cannot be negative'], default: 0 })
 	costPrice?: number;
@@ -74,7 +77,7 @@ export class Product {
 	@Prop({ type: Number, required: true, min: [0, 'Stock cannot be negative'], default: 0 })
 	stock: number;
 
-	@Prop({ type: String, required: true,  })
+	@Prop({ type: String })
 	stockType: string;
 
 	@Prop({ type: Number, required: true, min: [0, 'Maximum order quantity cannot be negative'], default: 1 })
