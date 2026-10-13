@@ -2,6 +2,7 @@ import type { Id } from '@/common/types';
 import { DBImage, DBImageSchema, schemaOptions } from '@/providers/database/schemas';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { Product } from '../product/product.model';
 import { User } from '../user/user.model';
 
@@ -67,6 +68,9 @@ export class Review {
 }
 
 const reviewSchema = SchemaFactory.createForClass(Review);
+
+// use mongoose-lean-virtuals to get virtuals in lean queries
+reviewSchema.plugin(mongooseLeanVirtuals);
 
 // Indexes -------------------------------------------------
 // Indexes for query performance and hierarchy lookups

@@ -2,6 +2,7 @@ import { type Id } from '@/common/types';
 import { DBImage, DBImageSchema } from '@/providers/database/schemas';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User } from '../user/user.model';
 
 @Schema({
@@ -69,6 +70,8 @@ export class Category {
 }
 
 const categorySchema = SchemaFactory.createForClass(Category);
+// use mongoose-lean-virtuals to get virtuals in lean queries
+categorySchema.plugin(mongooseLeanVirtuals);
 
 // Indexes -------------------------------------------------
 // Indexes for query performance and hierarchy lookups

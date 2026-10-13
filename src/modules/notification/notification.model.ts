@@ -1,14 +1,12 @@
-import { type Id } from '@/common/types';
+import type { Id } from '@/common/types';
+import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User } from '../user/user.model';
 import { NotificationTypeEnum } from './notification.enum';
 
-@Schema({
-	timestamps: true,
-	toObject: { virtuals: true },
-	toJSON: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class Notification {
 	@Prop({ type: Types.ObjectId, ref: User.name, required: true })
 	sendTo: Id;
@@ -49,6 +47,9 @@ export class Notification {
 }
 
 const notificationSchema = SchemaFactory.createForClass(Notification);
+
+// use mongoose-lean-virtuals to get virtuals in lean queries
+notificationSchema.plugin(mongooseLeanVirtuals);
 
 notificationSchema.index({ sendTo: 1, createdAt: 1 });
 notificationSchema.index({ sendTo: 1, readAt: 1 });

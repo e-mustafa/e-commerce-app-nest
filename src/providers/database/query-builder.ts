@@ -10,7 +10,7 @@ import {
 	QueryOptions,
 	Types,
 } from 'mongoose';
-import { IPaginatedResult, PopulateResult } from '../../common/types';
+import { IPaginatedResult, PopulateResult } from '@/common/types';
 
 export type Id = Types.ObjectId | string;
 
@@ -123,3 +123,4 @@ export const searchRegex = (search: string, flags: string = 'i') => {
 	const escapedSearch = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	return new RegExp(escapedSearch, flags);
 };
+//TODO - use searchRegex from here

@@ -1,6 +1,8 @@
-import { type Id } from '@/common/types';
+import type { Id } from '@/common/types';
+import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { Product } from '../product/product.model';
 import { User } from '../user/user.model';
 
@@ -25,7 +27,7 @@ export class CartItem {
 	subTotal: number; // finalPrice * quantity
 }
 
-@Schema({ timestamps: true })
+@Schema(schemaOptions)
 export class Cart {
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	user: Id;
@@ -41,5 +43,7 @@ export class Cart {
 }
 
 export const cartSchema = SchemaFactory.createForClass(Cart);
+// use mongoose-lean-virtuals to get virtuals in lean queries
+cartSchema.plugin(mongooseLeanVirtuals);
 
 export const cartModel = MongooseModule.forFeature([{ name: Cart.name, schema: cartSchema }]);

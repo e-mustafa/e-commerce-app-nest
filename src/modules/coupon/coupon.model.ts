@@ -2,6 +2,7 @@ import type { Id } from '@/common/types';
 import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { Brand } from '../brand/brand.model';
 import { Category } from '../category/category.model';
 import { User } from '../user/user.model';
@@ -93,6 +94,8 @@ export class Coupon {
 }
 
 export const couponSchema = SchemaFactory.createForClass(Coupon);
+// use mongoose-lean-virtuals to get virtuals in lean queries
+couponSchema.plugin(mongooseLeanVirtuals);
 
 // Database Indexes for query optimization
 couponSchema.index({ code: 1, isActive: 1 });

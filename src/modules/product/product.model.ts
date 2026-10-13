@@ -6,6 +6,7 @@ import { Brand } from '../brand/brand.model';
 import { Category } from '../category/category.model';
 import { Review } from '../review/review.model';
 import { User } from '../user/user.model';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 
 // -----------------------------------------------------------------------------
 // Main Product Schema
@@ -130,6 +131,9 @@ export class Product {
 }
 
 export const productSchema = SchemaFactory.createForClass(Product);
+
+// use mongoose-lean-virtuals to get virtuals in lean queries
+productSchema.plugin(mongooseLeanVirtuals);
 
 // Indexes for Performance --------------------------------------------
 productSchema.index({ category: 1, publishedAt: -1 });

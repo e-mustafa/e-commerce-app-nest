@@ -3,7 +3,7 @@ import { NotificationRepository } from '@/modules/notification/notification.repo
 import { UserRepository } from '@/modules/user/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { Message, Messaging } from 'firebase-admin/messaging';
-import { Id } from '../../common/types';
+import { Id } from '@/common/types';
 
 export const FIREBASE_SERVICE = Symbol('FIREBASE_SERVICE');
 

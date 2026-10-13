@@ -2,6 +2,7 @@ import type { Id } from '@/common/types';
 import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { Coupon } from '../coupon/coupon.model';
 import { Product } from '../product/product.model';
 import { User } from '../user/user.model';
@@ -127,4 +128,8 @@ export class Order {
 }
 
 export const orderSchema = SchemaFactory.createForClass(Order);
+
+// use mongoose-lean-virtuals to get virtuals in lean queries
+orderSchema.plugin(mongooseLeanVirtuals);
+
 export const orderModel = MongooseModule.forFeature([{ name: Order.name, schema: orderSchema }]);
