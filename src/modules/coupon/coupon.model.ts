@@ -64,6 +64,9 @@ export class Coupon {
 	@Prop({ type: Number, default: 1 })
 	usagePerUser?: number;
 
+	@Prop({ type: Boolean, default: false })
+	isStackable: boolean; // is allowed to apply with product discount
+
 	@Prop([{ type: MongooseSchema.Types.ObjectId, ref: User.name }])
 	usedBy: Id[];
 

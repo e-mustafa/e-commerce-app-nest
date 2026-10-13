@@ -83,8 +83,12 @@ export class CouponService {
 			throw new BadRequestException('None of the items in your cart are eligible for this coupon.');
 		}
 
-		// Calculate total price of eligible items
-		const eligibleSubTotal = eligibleItems.reduce((acc, item) => acc + item.pricePerUnit * item.quantity, 0);
+		// Calculate total price of eligible items supporting stacking rule cleanly
+		const isStackable = coupon.isStackable;
+		const eligibleSubTotal = eligibleItems.reduce(
+			(acc, item) => acc + (isStackable ? item.price - (item.discount || 0) : item.price) * item.quantity,
+			0,
+		);
 
 		// 6. Calculate discount value based on type
 		let discountAmount = 0;
