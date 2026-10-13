@@ -1,10 +1,10 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
-import { Id, IUserBody } from '@/common/types';
+import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils';
 import { DBImage, sortOrderEnum } from '@/providers/database';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
-import { QueryFilter, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { brandMinSelect } from '../brand';
 import { BrandRepository } from '../brand/brand.repository';
 import { categoryMinSelect } from '../category';

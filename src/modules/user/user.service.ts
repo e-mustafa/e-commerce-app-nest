@@ -1,9 +1,8 @@
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@/common/exceptions';
-import { type Id, type IFile, type IPaginatedResult, type IUploadService, type IUserBody } from '@/common/types';
+import type { Id, IFile, IPaginatedResult, IUploadService, IUserBody, QueryFilter } from '@/common/types';
 import { objectIdRegex } from '@/common/validation';
 import { UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
-import { QueryFilter } from 'mongoose';
 import { selectUserInfo } from './user.constants';
 import { GetUsersQueryDTO, UpdateProfileDTO } from './user.dto';
 import { UserRepository } from './user.repository';

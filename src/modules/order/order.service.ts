@@ -1,10 +1,9 @@
 import { BadRequestException, NotFoundException } from '@/common/exceptions';
-import { IPaginatedResult, IUserBody } from '@/common/types';
+import { IPaginatedResult, IUserBody, QueryFilter } from '@/common/types';
 import { sortOrderEnum } from '@/providers/database';
 import { cachePrefix } from '@/providers/redis/interceptors';
 import { RedisService } from '@/providers/redis/redis.service';
 import { Injectable } from '@nestjs/common';
-import { QueryFilter } from 'mongoose';
 import { ICart } from '../cart';
 import { CartRepository } from '../cart/cart.repository';
 import { CartService } from '../cart/cart.service';
@@ -156,7 +155,9 @@ export class OrderService {
 		// 6. Invalidate redis cache for products and lists safely
 		await Promise.all([
 			this.redisService.deletePattern('cache:*/products*'),
-			...itemsToAdd.map((item) => this.redisService.deletePattern(`${cachePrefix}*/products/${item.product.toString()}*`)),
+			...itemsToAdd.map((item) =>
+				this.redisService.deletePattern(`${cachePrefix}*/products/${item.product.toString()}*`),
+			),
 		]);
 
 		// 7. Return fully populated created order

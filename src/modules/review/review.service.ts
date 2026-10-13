@@ -1,10 +1,9 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
-import { Id, IUserBody } from '@/common/types';
+import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
-import { QueryFilter } from 'mongoose';
 import { ProductRepository } from '../product/product.repository';
 import { AdminRoleEnum, AdminRoles } from '../user';
 import type * as I from './review-service.interface';

@@ -1,8 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@/common/exceptions';
-import { Id, IUserBody } from '@/common/types';
+import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { Injectable } from '@nestjs/common';
-import { QueryFilter } from 'mongoose';
 import { brandMinSelect, IBrand } from '../brand';
 import { BrandRepository } from '../brand/brand.repository';
 import { ICart, ICartItem } from '../cart';

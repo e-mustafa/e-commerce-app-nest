@@ -1,7 +1,6 @@
 import { NotFoundException } from '@/common/exceptions';
-import { Id, IPaginatedResult } from '@/common/types';
+import { Id, IPaginatedResult, QueryFilter } from '@/common/types';
 import { Injectable } from '@nestjs/common';
-import { QueryFilter } from 'mongoose';
 import { selectGeneralUserInfo } from '../user';
 import { UserRepository } from '../user/user.repository';
 import { NotificationRepository } from './notification.repository';

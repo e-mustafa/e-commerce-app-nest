@@ -1,10 +1,12 @@
 import { IUser } from '@/modules/user';
-import { ClientSession, MongooseUpdateQueryOptions, Types } from 'mongoose';
+import { ClientSession, QueryFilter as MongooseQueryFilter, MongooseUpdateQueryOptions, Types } from 'mongoose';
 
 export type ObjId = Types.ObjectId;
 export type Id = Types.ObjectId | string;
 
 export interface IUserBody extends Omit<IUser, 'password'> {}
+
+export type QueryFilter<T> = MongooseQueryFilter<T>;
 
 export interface IUpdateOptions extends MongooseUpdateQueryOptions {
 	session?: ClientSession;

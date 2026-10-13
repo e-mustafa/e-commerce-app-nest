@@ -1,11 +1,11 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
-import { Id, IUserBody } from '@/common/types';
+import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils/slugify.util';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
-import { QueryFilter, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { AdminRoleEnum, AdminRoles } from '../user';
 import type * as I from './category-service.interface';
 import { CategoryRepository } from './category.repository';
