@@ -8,6 +8,8 @@ export interface IUserBody extends Omit<IUser, 'password'> {}
 
 export type QueryFilter<T> = MongooseQueryFilter<T>;
 
+export type TRet = { id?: string; _id: Types.ObjectId; __v?: number };
+
 export interface IUpdateOptions extends MongooseUpdateQueryOptions {
 	session?: ClientSession;
 	runValidators?: boolean;

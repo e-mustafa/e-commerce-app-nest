@@ -1,4 +1,4 @@
-import { IPaginationMetaData } from '../../providers/database/database.type';
+import { IPaginationMetaData } from '@/providers/database/database.type';
 
 export interface ISuccessResponse<T> {
 	success: boolean;

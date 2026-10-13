@@ -1,5 +1,5 @@
-import { type Id } from '@/common/types';
-import { DBImage } from '@/providers/database';
+import type { Id } from '@/common/types';
+import { DBImage, schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema, Query, UpdateQuery } from 'mongoose';
 import { Brand } from '../brand/brand.model';
@@ -11,11 +11,7 @@ import { User } from '../user/user.model';
 // Main Product Schema
 // -----------------------------------------------------------------------------
 
-@Schema({
-	timestamps: true,
-	toObject: { virtuals: true },
-	toJSON: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class Product {
 	@Prop({
 		type: String,

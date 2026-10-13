@@ -1,10 +1,11 @@
-import { type Id } from '@/common/types';
+import type { Id } from '@/common/types';
 import {
 	DBImage,
 	LocalizedText,
 	LocalizedTextOptional,
 	LocalizedTextOptionalSchema,
 	LocalizedTextSchema,
+	schemaOptions,
 	SeoMetadata,
 	SeoMetadataSchema,
 	validateAtLeastOneLanguage,
@@ -17,11 +18,7 @@ import { User } from '../user/user.model';
 // Main Product Schema
 // -----------------------------------------------------------------------------
 
-@Schema({
-	timestamps: true,
-	toObject: { virtuals: true },
-	toJSON: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class Product {
 	// Translatable primary title (requires at least one language)
 	@Prop({

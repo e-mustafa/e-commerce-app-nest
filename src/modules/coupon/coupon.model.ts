@@ -1,4 +1,5 @@
-import { type Id } from '@/common/types';
+import type { Id } from '@/common/types';
+import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Brand } from '../brand/brand.model';
@@ -8,11 +9,7 @@ import { CouponApplicableOnEnum, CouponTypeEnum, couponTypes } from './coupon.en
 
 export type CouponDocument = Coupon & Document;
 
-@Schema({
-	timestamps: true,
-	toObject: { virtuals: true },
-	toJSON: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class Coupon {
 	@Prop({
 		type: String,

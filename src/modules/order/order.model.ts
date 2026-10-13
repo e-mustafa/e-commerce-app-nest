@@ -1,4 +1,5 @@
-import { type Id } from '@/common/types';
+import type { Id } from '@/common/types';
+import { schemaOptions } from '@/providers/database';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Coupon } from '../coupon/coupon.model';
@@ -30,8 +31,6 @@ export class Address {
 	phone: string;
 }
 
-
-
 @Schema({ _id: true })
 export class OrderItem {
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Product.name, required: true })
@@ -52,7 +51,6 @@ export class OrderItem {
 	@Prop({ type: Number, required: true, min: [0, 'Sub total must be at least 0'] })
 	subTotal: number; // finalPrice * quantity
 
-
 	// @Prop({ type: Number, required: true, min: [0, 'Price Per Unit must be at least 0'] })
 	// priceSnapshot: number;
 
@@ -60,11 +58,7 @@ export class OrderItem {
 	// subTotal: number;
 }
 
-@Schema({
-	timestamps: true,
-	toJSON: { virtuals: true },
-	toObject: { virtuals: true },
- })
+@Schema(schemaOptions)
 export class Order {
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	user: Id;

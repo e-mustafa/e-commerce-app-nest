@@ -1,15 +1,11 @@
-import { type Id } from '@/common/types';
-import { DBImage, DBImageSchema } from '@/providers/database/schemas';
+import type { Id } from '@/common/types';
+import { DBImage, DBImageSchema, schemaOptions } from '@/providers/database/schemas';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { Product } from '../product/product.model';
 import { User } from '../user/user.model';
 
-@Schema({
-	timestamps: true,
-	toObject: { virtuals: true },
-	toJSON: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class Review {
 	// static async calcAverageRatings (productId) {
 	// 	const stats = await this.aggregate([

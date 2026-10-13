@@ -1,4 +1,21 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { TRet } from '@/common/types';
+import { Prop, Schema, SchemaFactory, SchemaOptions } from '@nestjs/mongoose';
+
+export const schemaOptions: SchemaOptions = {
+	timestamps: true,
+	strict: true,
+	strictQuery: true,
+	toObject: { virtuals: true },
+	toJSON: {
+		virtuals: true,
+		getters: true,
+		transform(_doc, ret: TRet) {
+			ret.id = ret._id.toString();
+			delete ret.__v;
+			return ret;
+		},
+	},
+};
 
 @Schema({ _id: false })
 export class DBImage {
