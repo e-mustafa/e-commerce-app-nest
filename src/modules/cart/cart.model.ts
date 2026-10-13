@@ -12,11 +12,17 @@ export class CartItem {
 	@Prop({ type: Number, required: true, min: [1, 'Quantity must be at least 1'], default: 1 })
 	quantity: number;
 
-	@Prop({ type: Number, required: true, min: [0, 'Price Per Unit must be at least 0'], default: 1 })
-	pricePerUnit: number;
+	@Prop({ type: Number, required: true, min: [0, 'Original price must be at least 0'] })
+	price: number; // Original product price at the time of adding to cart
 
-	@Prop({ type: Number, required: true, min: [0, 'Sub Total must be at least 0'], default: 1 })
-	subTotal: number;
+	@Prop({ type: Number, min: [0, 'Discount must be at least 0'], default: 0 })
+	discount: number; // Product-level discount per unit
+
+	@Prop({ type: Number, required: true, min: [0, 'Final price per unit must be at least 0'] })
+	finalPrice: number; // Price after product discount (price - discount)
+
+	@Prop({ type: Number, required: true, min: [0, 'Subtotal must be at least 0'] })
+	subTotal: number; // finalPrice * quantity
 }
 
 @Schema({ timestamps: true })

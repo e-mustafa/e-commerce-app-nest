@@ -63,10 +63,11 @@ export class CartService {
 			}
 
 			// Evaluate active unit price (Discount price takes precedence)
-			const currentUnitPrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
+			// const currentUnitPrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
+			const currentUnitPrice = product.finalPrice;
 
 			// Check if admin modified price since last cart update
-			if (item.pricePerUnit !== currentUnitPrice) {
+			if (item.finalPrice !== currentUnitPrice) {
 				hasPriceChanged = true;
 				priceChangeMessages.push(
 					`Price for "${product.title}" changed from $${item.pricePerUnit} to $${currentUnitPrice}.`,
@@ -108,7 +109,8 @@ export class CartService {
 		const cart = await this.getRawCart(userId);
 
 		const itemIndex = cart.items.findIndex((item) => item.product.toString() === product._id.toString());
-		const productPrice = product.discountPrice || product.price;
+		// const productPrice = product.discountPrice || product.price;
+		const productPrice = product.finalPrice || product.price;
 
 		if (itemIndex >= 0) {
 			const item = cart.items[itemIndex];
@@ -202,7 +204,7 @@ export class CartService {
 			let quantity = item?.quantity || 1;
 			if (quantity > p.stock) quantity = p.stock;
 
-			const pricePerUnit = p.discountPrice || p.price;
+			const pricePerUnit = p.finalPrice || p.price;
 			const subTotal = pricePerUnit * quantity;
 
 			return {
@@ -226,6 +228,6 @@ export class CartService {
 		cart.items = [];
 
 		this.recalculateCartTotal(cart);
-		return await (await cart.save()).toObject();
+		return (await cart.save()).toObject();
 	}
 }
