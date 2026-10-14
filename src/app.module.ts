@@ -12,6 +12,7 @@ import { BrandModule } from './modules/brand/brand.module';
 import { CartModule } from './modules/cart/cart.module';
 import { CategoryModule } from './modules/category/category.module';
 import { CouponModule } from './modules/coupon/coupon.module';
+import { OrderModule } from './modules/order/order.module';
 import { ProductModule } from './modules/product/product.module';
 import { ReviewModule } from './modules/review/review.module';
 import { UserModule } from './modules/user/user.module';
@@ -22,7 +23,6 @@ import { MailModule } from './providers/mail/mail.module';
 import { RedisModule } from './providers/redis/redis.module';
 import { SecurityModule } from './providers/security/security.module';
 import { UploadModule } from './providers/upload/upload.module';
-import { OrderModule } from './modules/order/order.module';
 // export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -55,9 +55,9 @@ import { OrderModule } from './modules/order/order.module';
 		CategoryModule,
 		BrandModule,
 		ProductModule,
-		CartModule,
 		ReviewModule,
 		CouponModule,
+		CartModule,
 		OrderModule,
 		// NotificationModule,
 	],

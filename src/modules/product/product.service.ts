@@ -22,7 +22,7 @@ const productPopulates = [
 ];
 
 const productPopulatesAdmin = [
-	{ path: 'user', select: selectGeneralUserInfo },
+	{ path: 'createdBy', select: selectGeneralUserInfo },
 	{ path: 'brand', select: brandMinSelect },
 	{ path: 'category', select: categoryMinSelect },
 ];
@@ -87,16 +87,22 @@ export class ProductService {
 	async createProductAdmin(payload: I.ICreateProductPayload) {
 		const { userId, files, ...body } = payload;
 
-		// Validate Category & Brand existence BEFORE processing file uploads
+		const tasks: Promise<void>[] = [];
 		if (body.category) {
-			const categoryExists = await this.categoryRepo.findById(body.category).lean().exec();
-			if (!categoryExists) throw new NotFoundException('Category not found.');
+			tasks.push(
+				this.categoryRepo.exists({ _id: body.category }).then((category) => {
+					if (!category) throw new NotFoundException('Category not found.');
+				}),
+			);
 		}
-
 		if (body.brand) {
-			const brandExists = await this.brandRepo.findById(body.brand).lean().exec();
-			if (!brandExists) throw new NotFoundException('Brand not found.');
+			tasks.push(
+				this.brandRepo.exists({ _id: body.brand }).then((brand) => {
+					if (!brand) throw new NotFoundException('Brand not found.');
+				}),
+			);
 		}
+		await Promise.all(tasks);
 
 		// Generate slug using common utility function
 		let slug = body.slug ? slugify(body.slug) : slugify(body.title);
@@ -164,26 +170,37 @@ export class ProductService {
 			throw new NotFoundException('Product not found.');
 		}
 
+		const tasks: Promise<void>[] = [];
 		if ((body.title && body.title !== product.title) || (body.slug && body.slug !== product.slug)) {
-			const isExist = await this.productRepo.isExist(body.slug || '', body.title || '', { ignoreDefaultFilters: true });
-			if (isExist) {
-				throw new ConflictException('Product name or slug already exists.');
-			}
+			tasks.push(
+				this.productRepo.isExist(body.slug || '', body.title || '', { ignoreDefaultFilters: true }).then((isExist) => {
+					if (isExist) {
+						throw new ConflictException('Product name or slug already exists.');
+					}
+				}),
+			);
 		}
 
 		if (body.category && body.category !== product.category) {
-			const category = await this.categoryRepo.findById(body.category, { ignoreDefaultFilters: true }).lean().exec();
-			if (!category) {
-				throw new NotFoundException('Category not found.');
-			}
+			tasks.push(
+				this.categoryRepo.exists({ _id: body.category }, { ignoreDefaultFilters: true }).then((category) => {
+					if (!category) {
+						throw new NotFoundException('Category not found.');
+					}
+				}),
+			);
 		}
 
 		if (body.brand && body.brand !== product.brand) {
-			const brand = await this.brandRepo.findById(body.brand, { ignoreDefaultFilters: true }).lean().exec();
-			if (!brand) {
-				throw new NotFoundException('Brand not found.');
-			}
+			tasks.push(
+				this.brandRepo.exists({ _id: body.brand }, { ignoreDefaultFilters: true }).then((brand) => {
+					if (!brand) {
+						throw new NotFoundException('Brand not found.');
+					}
+				}),
+			);
 		}
+		await Promise.all(tasks);
 
 		let newFiles: TDeleteAttachment[] = [];
 		let uploadImages: DBImage[] = [];
@@ -261,11 +278,13 @@ export class ProductService {
 			}
 		}
 
-		await this.productRepo
+		const deletedProduct = await this.productRepo
 			.findByIdAndUpdate(productId, { $set: { deletedAt: new Date() } })
 			.lean()
 			.populate(productPopulatesAdmin)
 			.exec();
+		
+		return deletedProduct;
 	}
 
 	async togglePublishedAdmin(productId: Id) {
