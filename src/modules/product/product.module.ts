@@ -3,7 +3,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { BrandModule } from '../brand/brand.module';
 import { CategoryModule } from '../category/category.module';
 import { UserModule } from '../user/user.module';
-import { ProductAdminController } from './product.controller.admin';
+import { ProductAdminController } from './product.admin.controller';
 import { ProductController } from './product.controller';
 import { productModel } from './product.model';
 import { ProductRepository } from './product.repository';

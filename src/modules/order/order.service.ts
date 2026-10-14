@@ -12,7 +12,7 @@ import { ICouponValidationResult } from '../coupon';
 import { CouponRepository } from '../coupon/coupon.repository';
 import { CouponService } from '../coupon/coupon.service';
 import { productGeneralSelect } from '../product';
-import { invalidations } from '../product/product.controller.admin';
+import { invalidations } from '../product/product.admin.controller';
 import { ProductRepository } from '../product/product.repository';
 import { AdminRoleEnum, AdminRoles, selectGeneralUserInfo } from '../user';
 import { OrderNumberGeneratorService } from './order-number-generator';
