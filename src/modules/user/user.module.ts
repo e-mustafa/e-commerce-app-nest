@@ -4,10 +4,11 @@ import UserController from './user.controller';
 import { userModel } from './user.model';
 import { UserRepository } from './user.repository';
 import UserService from './user.service';
+import UserAdminController from './user.admin.controller';
 
 @Module({
 	imports: [ConfigModule, userModel],
-	controllers: [UserController],
+	controllers: [UserController, UserAdminController],
 	providers: [UserService, UserRepository],
 	exports: [UserService, UserRepository, userModel],
 })

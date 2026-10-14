@@ -1,6 +1,37 @@
 import { generalFields, getFileSchema } from '@/common/validation';
 import { sortOrderEnum } from '@/providers/database/query.enum';
 import z from 'zod';
+import { GenderEnum, ProviderEnum, RoleEnum, StatusReasonEnum, TGendersKey, UserRoles, UserStatusEnum } from './user.enums';
+
+const userFields = {
+	status: z.enum(Object.values(UserStatusEnum)),
+	statusReason: z.enum(Object.values(StatusReasonEnum)),
+	provider: z.enum(Object.values(ProviderEnum)).optional(),
+	role: z.preprocess(
+		(val) => {
+			if (typeof val === 'string') {
+				const normalizedKey = val.trim().toUpperCase() as keyof typeof RoleEnum;
+				if (Object.prototype.hasOwnProperty.call(RoleEnum, normalizedKey)) return RoleEnum[normalizedKey];
+			}
+			return val;
+		},
+		z.number().refine((val): val is RoleEnum => UserRoles.includes(val as RoleEnum), {
+			message: `Invalid role value, use one of: ${Object.keys(RoleEnum).join(', ')}`,
+		}),
+	),
+	gender: z.preprocess(
+		(val) => {
+			if (typeof val === 'string') {
+				const normalizedKey = val.trim().toUpperCase() as TGendersKey;
+				if (Object.hasOwn(GenderEnum, normalizedKey)) return GenderEnum[normalizedKey];
+			}
+			return val;
+		},
+		z.number().refine((val): val is GenderEnum => Object.values(GenderEnum).includes(val as GenderEnum), {
+			message: `Invalid gender value, use one of: ${Object.keys(GenderEnum).join(', ')}`,
+		}),
+	),
+};
 
 export const updateProfileSchema = {
 	body: z
@@ -9,7 +40,7 @@ export const updateProfileSchema = {
 			lastName: generalFields.lastName,
 			username: generalFields.username,
 			bio: generalFields.bio,
-			gender: generalFields.gender,
+			gender: userFields.gender,
 			birthdate: generalFields.birthdate,
 			phone: generalFields.phone,
 		})
@@ -59,8 +90,36 @@ export const getUsersSchema = {
 		page: generalFields.page.default(1).optional(),
 		limit: generalFields.limit.default(10).optional(),
 		order: generalFields.order.default(sortOrderEnum.DESC).optional(),
+		sortBy: z.string().default('createdAt').optional(),
 		search: generalFields.search.optional(),
+
+		provider: userFields.provider.optional(),
+		gender: userFields.gender.optional(),
+		isVerified: z.coerce.boolean().optional(),
+		isDeleted: z.coerce.boolean().optional(),
+		status: userFields.status.optional(),
+		statusReason: userFields.statusReason.optional(),
+		role: userFields.role.optional(),
 	}),
 };
 
 export type GetUsersQueryDTO = z.infer<typeof getUsersSchema.query>;
+
+export const updateUerRoleSchema = {
+	body: z.strictObject({
+		role: userFields.role,
+	}),
+	params: paramsIdSchema.params,
+};
+
+export type UpdateUserRoleDTO = z.infer<typeof updateUerRoleSchema.body>;
+
+export const updateUerStatusSchema = {
+	body: z.strictObject({
+		status: userFields.status,
+		statusReason: userFields.statusReason,
+	}),
+	params: paramsIdSchema.params,
+};
+
+export type UpdateUserStatusDTO = z.infer<typeof updateUerStatusSchema.body>;

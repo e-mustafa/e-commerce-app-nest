@@ -1,17 +1,9 @@
 import { AUser, Auth } from '@/common/decorators';
-import { AuthGuard } from '@/common/guards';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { fileTypes, UseUpload } from '@/providers/upload';
-import { Body, Controller, Delete, Get, Param, Patch, Query, UploadedFile, UseGuards } from '@nestjs/common';
-import {
-	type GetUsersQueryDTO,
-	getUsersSchema,
-	type ParamsUserIdDTO,
-	paramsUserIdSchema,
-	type UpdateProfileDTO,
-	updateProfileSchema,
-} from './user.dto';
+import { Body, Controller, Delete, Get, Param, Patch, UploadedFile } from '@nestjs/common';
+import { type ParamsUserIdDTO, paramsUserIdSchema, type UpdateProfileDTO, updateProfileSchema } from './user.dto';
 import UserService from './user.service';
 
 export const routes = {
@@ -89,17 +81,17 @@ export default class UserController {
 		return { message: `${fieldname} uploaded successfully`, data };
 	}
 
-	@Get(routes.getUser)
-	async getUser(@AUser('_id') userId: Id, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
-		const data = await this.services.getUser(userId, params.userId);
-		return { data };
-	}
+	// @Get(routes.getUser)
+	// async getUser(@AUser() user: IUserBody, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
+	// 	const data = await this.services.getUser(user, params.userId);
+	// 	return { data };
+	// }
 
-	@Get(routes.getUsers)
-	async getUsers(@AUser('_id') userId: Id, @Query({ schema: getUsersSchema.query }) query: GetUsersQueryDTO) {
-		const { data, metadata } = await this.services.getUsers(userId, query);
-		return { metadata, data };
-	}
+	// @Get(routes.getUsers)
+	// async getUsers(@AUser('_id') userId: Id, @Query({ schema: getUsersSchema.query }) query: GetUsersQueryDTO) {
+	// 	const { data, metadata } = await this.services.getUsers(userId, query);
+	// 	return { metadata, data };
+	// }
 
 	@Get(routes.getUserStatus)
 	async getUserStatus(@AUser('_id') userId: Id, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
@@ -107,5 +99,5 @@ export default class UserController {
 		return { data };
 	}
 
-	// TODO add search and get users route /> by admin
+	// // TODO add search and get users route /> by admin
 }

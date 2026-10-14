@@ -1,4 +1,4 @@
-import { RoleEnum } from '@/modules/user';
+import { AdminRoleEnum, AdminRoles, RoleEnum } from '@/modules/user';
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { AuthGuard, RolesGuard } from '../guards';
 import { Roles } from './roles.decorator';
@@ -30,6 +30,7 @@ export const Auth = (isOptional: boolean = false) => {
  * @description This decorator applies the AuthGuard and RolesGuard to the route handler, with the specified roles as required roles.
  * @returns
  */
-export const AuthAdmin = (roles: RoleEnum[] = [RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]) => {
-	return applyDecorators(Roles(...roles), UseGuards(AuthGuard, RolesGuard));
+export const AuthAdmin = (...roles: (RoleEnum | AdminRoleEnum)[]) => {
+	const role = roles?.length > 0 ? roles : AdminRoles;
+	return applyDecorators(Roles(...role), UseGuards(AuthGuard, RolesGuard));
 };

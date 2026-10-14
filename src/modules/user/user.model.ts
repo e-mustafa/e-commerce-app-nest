@@ -89,7 +89,7 @@ export class User {
 		enum: Object.values(RoleEnum),
 		default: RoleEnum.USER,
 	})
-	role: number;
+	role: RoleEnum;
 
 	@Prop({
 		type: Number,

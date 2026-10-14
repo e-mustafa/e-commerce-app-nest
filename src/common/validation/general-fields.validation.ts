@@ -1,4 +1,3 @@
-import { GenderEnum } from '@/modules/user';
 import { sortOrderEnum } from '@/providers/database';
 import { Readable } from 'node:stream';
 import z from 'zod';
@@ -40,30 +39,9 @@ export const uploadFileSchema = z.object({
 
 // Dynamic file schema factory for strict typing and custom error messages
 export const getFileSchema = (errorMessage = 'File is required') =>
-	z.object(
-		uploadFileSchema.shape,
-		// {
-		// 	...uploadFileSchema.shape,
-		// 	fieldname: z.string(),
-		// 	originalname: z.string(),
-		// 	encoding: z.string(),
-		// 	mimetype: z.string(),
-		// 	buffer: z
-		// 		.custom<Buffer>((val) => Buffer.isBuffer(val), {
-		// 			message: 'File buffer is required',
-		// 		})
-		// 		.optional(),
-		// 	stream: z.custom<Readable>().optional(),
-		// 	destination: z.string().optional(),
-		// 	filename: z.string().optional(),
-		// 	size: z.number().positive('File cannot be empty'),
-		// 	path: z.string().optional(),
-		// 	filePath: z.string().optional(),
-		// },
-		{
-			error: errorMessage,
-		},
-	);
+	z.object(uploadFileSchema.shape, {
+		error: errorMessage,
+	});
 
 export const attachmentsDBSchema = z.strictObject({
 	id: z.string().trim(),
@@ -119,10 +97,6 @@ export const generalFields = {
 	confirmPassword: z.string({ error: 'Confirm password is required' }),
 
 	bio: z.string().max(160, 'Bio must be at most 160 characters long'),
-	gender: z.union([
-		z.enum(GenderEnum),
-		z.enum(Object.keys(GenderEnum)).transform((val) => GenderEnum[val as keyof typeof GenderEnum]),
-	]),
 	// birthdate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format, use YYYY-MM-DD'),
 	birthdate: z.coerce.date(),
 	phone: z.string({ error: 'Phone is required' }).regex(phoneRegex, 'Invalid phone number'),

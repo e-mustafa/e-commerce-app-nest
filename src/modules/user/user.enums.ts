@@ -22,6 +22,7 @@ export const RoleEnum = {
 } as const;
 
 export type RoleEnum = (typeof RoleEnum)[keyof typeof RoleEnum];
+export const UserRoles = Object.values(RoleEnum);
 
 export const AdminRoleEnum = {
 	ADMIN: 1,
