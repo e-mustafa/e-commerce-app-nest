@@ -1,10 +1,11 @@
 import { AUser } from '@/common/decorators';
 import type { IUserBody } from '@/common/types';
 import { Cache } from '@/providers/redis/decorators';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import type * as dto from './brand.dto';
 import * as S from './brand.dto';
 import { BrandService } from './brand.service';
+import { ImagePathInterceptor } from '@/common/interceptors';
 
 const routes = {
 	base: 'brands',
@@ -13,6 +14,7 @@ const routes = {
 	getBrand: '/:brandId',
 };
 
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export class BrandController {
 	constructor(private readonly service: BrandService) {}

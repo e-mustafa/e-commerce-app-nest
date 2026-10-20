@@ -1,8 +1,9 @@
 import { AUser, Auth } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { fileTypes, UseUpload } from '@/providers/upload';
-import { Body, Controller, Delete, Get, Param, Patch, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { type ParamsUserIdDTO, paramsUserIdSchema, type UpdateProfileDTO, updateProfileSchema } from './user.dto';
 import UserService from './user.service';
 
@@ -27,6 +28,7 @@ export const routes = {
 
 // @UseGuards(AuthGuard)
 @Auth()
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export default class UserController {
 	constructor(private readonly services: UserService) {}

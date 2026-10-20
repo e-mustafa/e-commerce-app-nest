@@ -1,6 +1,7 @@
 import { AUser, AuthAdmin } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { IUserBody } from '@/common/types';
-import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query, UseInterceptors } from '@nestjs/common';
 import {
 	type GetUsersQueryDTO,
 	getUsersSchema,
@@ -29,6 +30,7 @@ export const routes = {
 
 // @UseGuards(AuthGuard)
 @AuthAdmin()
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export default class UserAdminController {
 	constructor(private readonly service: UserService) {}

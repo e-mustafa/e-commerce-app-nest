@@ -3,11 +3,12 @@ import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ICreateBrandPayload, IUpdateBrandPayload } from './brand-service.interface';
 import type * as dto from './brand.dto';
 import * as S from './brand.dto';
 import { BrandService } from './brand.service';
+import { ImagePathInterceptor } from '@/common/interceptors';
 
 const routes = {
 	base: 'admin/brands',
@@ -28,6 +29,7 @@ const invalidations = ['/brands', '/brands/:brandId'];
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
 @AuthAdmin() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export class BrandAdminController {
 	constructor(private readonly service: BrandService) {}

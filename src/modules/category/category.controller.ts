@@ -1,7 +1,8 @@
 import { AUser } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { IUserBody } from '@/common/types';
 import { Cache } from '@/providers/redis/decorators';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import type * as dto from './category.dto';
 import * as S from './category.dto';
 import { CategoryService } from './category.service';
@@ -13,6 +14,7 @@ const routes = {
 	getCategory: '/:categoryId',
 };
 
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export class CategoryController {
 	constructor(private readonly service: CategoryService) {}

@@ -1,9 +1,10 @@
 import { AUser, AuthAdmin } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ICreateCategoryPayload, IUpdateCategoryPayload } from './category-service.interface';
 import type * as dto from './category.dto';
 import * as S from './category.dto';
@@ -28,6 +29,7 @@ const invalidations = ['/categories', '/categories/:categoryId'];
 // @Roles(RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN)
 // or
 @AuthAdmin() //[RoleEnum.ADMIN, RoleEnum.SUPER_ADMIN]
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export class CategoryAdminController {
 	constructor(private readonly service: CategoryService) {}

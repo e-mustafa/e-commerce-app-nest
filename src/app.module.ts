@@ -67,11 +67,11 @@ import { UploadModule } from './providers/upload/upload.module';
 			provide: APP_FILTER,
 			useClass: GlobalExceptionFilter, // NestJS will instantiate this class and inject envConfig automatically
 		},
-		{
-			// add domain to uploaded file url - if no domain is provided
-			provide: APP_INTERCEPTOR,
-			useClass: ImagePathInterceptor,
-		},
+		// {
+		// 	// add domain to uploaded file url - if no domain is provided
+		// 	provide: APP_INTERCEPTOR,
+		// 	useClass: ImagePathInterceptor,
+		// },
 	],
 })
 export class AppModule {}

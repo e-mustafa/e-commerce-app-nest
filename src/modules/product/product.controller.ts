@@ -1,8 +1,9 @@
 import { AUser } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { Cache } from '@/providers/redis/decorators';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import type * as dto from './product.dto';
 import * as S from './product.dto';
 import { ProductService } from './product.service';
@@ -14,6 +15,7 @@ const routes = {
 	getProduct: '/:identifier',
 };
 
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 @Cache(appConfig().product.cacheTTL)
 export class ProductController {

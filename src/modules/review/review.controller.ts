@@ -1,9 +1,10 @@
 import { AUser, Auth } from '@/common/decorators';
+import { ImagePathInterceptor } from '@/common/interceptors';
 import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { Cache, InvalidateCache } from '@/providers/redis/decorators';
 import { UseUpload } from '@/providers/upload';
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import type * as dto from './review.dto';
 import * as S from './review.dto';
 import { ReviewService } from './review.service';
@@ -23,6 +24,7 @@ export const routes = {
 
 export const invalidations = ['/reviews/', '/products/:productId/reviews', '/reviews/:reviewId'];
 
+@UseInterceptors(ImagePathInterceptor)
 @Controller(routes.base)
 export class ReviewController {
 	constructor(private readonly service: ReviewService) {}
