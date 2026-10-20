@@ -8,6 +8,7 @@ import { ProductController } from './product.controller';
 import { productModel } from './product.model';
 import { ProductRepository } from './product.repository';
 import { ProductService } from './product.service';
+import { ProductResolver } from './qraphql/product.gql.resolver';
 
 @Module({
 	imports: [
@@ -18,7 +19,7 @@ import { ProductService } from './product.service';
 		forwardRef(() => UploadModule),
 	],
 	controllers: [ProductController, ProductAdminController],
-	providers: [ProductService, ProductRepository],
+	providers: [ProductService, ProductRepository, ProductResolver],
 	exports: [ProductService, ProductRepository],
 })
 export class ProductModule {}

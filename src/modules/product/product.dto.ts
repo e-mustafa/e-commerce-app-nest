@@ -1,9 +1,9 @@
 import { generalFields } from '@/common/validation';
 import { appConfig } from '@/config';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import z from 'zod';
 
-const { defaultLimit = 10, defaultOrder = sortOrderEnum.DESC } = appConfig().product || {};
+const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().product || {};
 
 const productFields = {
 	title: z
@@ -129,9 +129,9 @@ export type UpdateProductDTO = z.infer<typeof updateProductSchema.body>;
 
 export const productQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 		search: generalFields.search.optional(),
 		isPublished: z.coerce.boolean().optional(),
 		category: generalFields.id.optional(),

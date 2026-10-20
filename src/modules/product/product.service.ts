@@ -1,7 +1,7 @@
 import { ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils';
-import { DBImage, sortOrderEnum } from '@/providers/database';
+import { DBImage, SortOrderEnum } from '@/providers/database';
 import { searchRegex } from '@/providers/database/query-builder';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
@@ -65,7 +65,7 @@ export class ProductService {
 		const products = await this.productRepo
 			.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ [query.sortBy || 'createdAt']: query.order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ [query.sortBy || 'createdAt']: query.order === SortOrderEnum.ASC ? 1 : -1 })
 			.paginate(query.page, query.limit)
 			.populate(isAdmin ? [{ path: 'reviews' }, ...productPopulatesAdmin] : productPopulates)
 			.exec();
@@ -283,7 +283,7 @@ export class ProductService {
 			.lean()
 			.populate(productPopulatesAdmin)
 			.exec();
-		
+
 		return deletedProduct;
 	}
 

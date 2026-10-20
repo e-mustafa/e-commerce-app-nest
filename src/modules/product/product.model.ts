@@ -1,19 +1,25 @@
 import type { Id } from '@/common/types';
 import { DBImage, schemaOptions } from '@/providers/database';
+import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema, Query, UpdateQuery } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { Brand } from '../brand/brand.model';
 import { Category } from '../category/category.model';
 import { Review } from '../review/review.model';
 import { User } from '../user/user.model';
-import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 
 // -----------------------------------------------------------------------------
 // Main Product Schema
 // -----------------------------------------------------------------------------
 
+@ObjectType(Product.name)
 @Schema(schemaOptions)
 export class Product {
+	@Field(() => ID)
+	_id: Id;
+
+	@Field(() => String)
 	@Prop({
 		type: String,
 		minLength: [2, 'Title must be at least 2 characters'],
@@ -24,6 +30,7 @@ export class Product {
 	})
 	title: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -35,6 +42,7 @@ export class Product {
 	})
 	slug: string;
 
+	@Field(() => String, { nullable: true })
 	@Prop({
 		type: String,
 		minLength: [2, 'sku must be at least 2 characters'],
@@ -43,6 +51,7 @@ export class Product {
 	})
 	sku?: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		minLength: [3, 'Short Description must be at least 3 characters'],
@@ -51,6 +60,7 @@ export class Product {
 	})
 	excerpt: string;
 
+	@Field(() => String, { nullable: true })
 	@Prop({
 		type: String,
 		minLength: [3, 'Description must be at least 3 characters'],
@@ -59,6 +69,7 @@ export class Product {
 	})
 	description: string;
 
+	@Field(() => String, { nullable: true })
 	@Prop({
 		type: String,
 		minLength: [2, 'model must be at least 2 characters'],
@@ -68,37 +79,53 @@ export class Product {
 	model?: string;
 
 	// Pricing & Stock Attributes
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, min: [0, 'Price cannot be negative'] })
 	price: number;
 
+	@Field(() => Number, { nullable: true })
 	@Prop({ type: Number, min: [0, 'Discount amount cannot be negative'], default: 0 })
 	discount: number;
 
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, index: true })
 	finalPrice: number;
 
+	// @Field(() => Float)
 	@Prop({ type: Number, min: [0, 'Cost price cannot be negative'], default: 0 })
 	costPrice?: number;
 
-	@Prop({ type: Number, required: true, min: [0, 'Stock cannot be negative'], default: 0 })
+	@Field(() => Int)
+	@Prop({ type: Number, required: true, min: [0, 'Stock cannot be negative'], default: 1 })
 	stock: number;
 
+	@Field(() => String, { nullable: true })
 	@Prop({ type: String })
 	stockType?: string;
 
-	@Prop({ type: Number, required: true, min: [0, 'Maximum order sell cannot be negative'], default: 1 })
+	@Field(() => Int, { nullable: true })
+	@Prop({
+		type: Number,
+		required: true,
+		min: [0, 'Maximum order sell cannot be negative, set to 0 for unlimited'],
+		default: 0,
+	})
 	maxOrderSell?: number;
 
-	@Prop({ type: Number, required: true, min: [0, 'Minimum warn quantity cannot be negative'], default: 1 })
+	@Field(() => Int, { nullable: true })
+	@Prop({ type: Number, required: true, min: [0, 'Minimum warn quantity cannot be negative'], default: 5 })
 	lowStockAlert?: number; // for waring users about low quantity
 
 	// Categorization Relations
+	@Field(() => Category, { nullable: true })
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Category.name, required: true })
 	category?: Id;
 
+	@Field(() => Brand, { nullable: true })
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Brand.name, required: false })
 	brand?: Id;
 
+	@Field(() => [String])
 	@Prop([String])
 	tags?: string[];
 
@@ -106,26 +133,33 @@ export class Product {
 	// @Prop({ type: DBImage, default: null })
 	// cover?: DBImage | null;
 
+	@Field(() => [DBImage])
 	@Prop({ type: [DBImage], default: [] })
 	images: DBImage[];
 
 	// Ratings & Metrics
+	@Field(() => Float)
 	@Prop({ type: Number, default: 0, min: 0, max: 5 })
 	ratingsAverage?: number;
 
+	@Field(() => Int)
 	@Prop({ type: Number, default: 0 })
 	ratingCount?: number;
 
 	// System Attributes
+	@Field(() => User)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	createdBy: Id;
 
+	@Field(() => Date, { nullable: true })
 	@Prop({ type: Date, default: Date.now })
 	publishedAt?: Date | null;
 
+	@Field(() => Int)
 	@Prop({ type: Number, default: 0 })
 	order: number;
 
+	@Field(() => Date, { nullable: true })
 	@Prop({ type: Date, default: null })
 	deletedAt?: Date | null;
 }

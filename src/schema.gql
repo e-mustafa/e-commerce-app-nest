@@ -1,0 +1,190 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Brand {
+  _id: ID!
+  cover: DBImage
+  createdBy: User!
+  deletedAt: DateTime
+  description: String
+  icon: DBImage
+  name: String!
+  order: Float!
+  publishedAt: DateTime
+  slug: String!
+}
+
+type Category {
+  _id: ID!
+  cover: DBImage
+  createdBy: User!
+  deletedAt: DateTime
+  description: String
+  icon: DBImage
+  name: String!
+  order: Float!
+  parentId: Category
+  publishedAt: DateTime
+  slug: String!
+}
+
+type Coupon {
+  _id: ID!
+  applicableOn: String!
+  brands: [Brand]
+  categories: [Category]
+  code: String!
+  deletedAt: DateTime
+  description: String
+  endDate: DateTime
+  isActive: Boolean!
+  isStackable: Boolean!
+  maxDiscountAmount: Int
+  minPurchaseAmount: Int!
+  order: Int!
+  products: [Product]
+  publishedAt: DateTime
+  startDate: DateTime!
+  type: String!
+  usageLimit: Int
+  usagePerUser: Int!
+  usedBy: [User]
+  usedCount: Int!
+  value: Int!
+}
+
+type DBImage {
+  id: String!
+  url: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""Gender of the user"""
+enum GenderEnum {
+  FEMALE
+  MALE
+}
+
+"""Order item"""
+type OrderItem {
+  discount: Float!
+  finalPrice: Float!
+  price: Float!
+  product: Product!
+  quantity: Float!
+  subTotal: Float!
+}
+
+type PaginatedCoupons {
+  data: [Coupon!]!
+  metadata: PaginationMetadataResponse!
+}
+
+type PaginatedProducts {
+  data: [Product!]!
+  metadata: PaginationMetadataResponse!
+}
+
+type PaginationMetadataResponse {
+  hasNext: Boolean!
+  hasPrev: Boolean!
+  limit: Int!
+  page: Int!
+  total: Int!
+  totalPages: Int!
+}
+
+type Product {
+  _id: ID!
+  brand: Brand
+  category: Category
+  createdBy: User!
+  deletedAt: DateTime
+  description: String
+  discount: Float
+  excerpt: String!
+  finalPrice: Float!
+  images: [DBImage!]!
+  lowStockAlert: Int
+  maxOrderSell: Int
+  model: String
+  order: Int!
+  price: Float!
+  publishedAt: DateTime
+  ratingCount: Int!
+  ratingsAverage: Float!
+  sku: String
+  slug: String!
+  stock: Int!
+  stockType: String
+  tags: [String!]!
+  title: String!
+}
+
+"""Provider of the user"""
+enum ProviderEnum {
+  FACEBOOK
+  GOOGLE
+  SYSTEM
+  TWITTER
+}
+
+type Query {
+  getCoupon(couponId: String!): Coupon!
+  getProduct(productId: String!): Product!
+  listCoupons(isActive: Boolean, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, search: String): PaginatedCoupons!
+  listProducts(brand: String, category: String, createdBy: String, isActive: Boolean, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, price: Float, search: String, sortBy: String, stock: Int, stockType: String, tag: [String!]): PaginatedProducts!
+}
+
+"""Role of the user"""
+enum RoleEnum {
+  ADMIN
+  SUPER_ADMIN
+  USER
+}
+
+"""Reason for the status change of the user"""
+enum StatusReasonEnum {
+  ADMIN_ACTION
+  INACTIVITY_TIMEOUT
+  POLICY_VIOLATION
+  SECURITY_SUSPICION
+  USER_REQUEST
+}
+
+"""User model"""
+type User {
+  avatar: DBImage
+  bio: String!
+  birthdate: DateTime!
+  cover: DBImage
+  deletedAt: DateTime!
+  email: String!
+  firstName: String!
+  gender: GenderEnum!
+  lastName: String!
+  lastSeenAt: DateTime!
+  loggedOutAllAt: DateTime!
+  notificationEnabled: Boolean!
+  phone: String!
+  provider: ProviderEnum!
+  role: RoleEnum!
+  status: UserStatusEnum!
+  statusChangedAt: DateTime!
+  statusReason: StatusReasonEnum
+  username: String!
+  verifiedAt: DateTime!
+}
+
+"""Status of the user"""
+enum UserStatusEnum {
+  ACTIVE
+  BANNED
+  DELETING
+  INACTIVE
+}
