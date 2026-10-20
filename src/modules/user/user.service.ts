@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@/common/exceptions';
 import type { Id, IFile, IPaginatedResult, IUploadService, IUserBody, QueryFilter } from '@/common/types';
 import { objectIdRegex } from '@/common/validation';
-import { sortOrderEnum } from '@/providers/database';
+import { SortOrderEnum } from '@/providers/database';
 import { searchRegex } from '@/providers/database/query-builder';
 import { UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
@@ -137,7 +137,7 @@ export default class UserService {
 		page = 1,
 		limit = 10,
 		sortBy = 'createdAt',
-		order = sortOrderEnum.DESC,
+		order = SortOrderEnum.DESC,
 		search,
 		...query
 	}: IListUsersPayload): Promise<IPaginatedResult<IUserGeneral>> {
@@ -180,7 +180,7 @@ export default class UserService {
 		// 4. Execute query through user repository with pagination
 		const users = await this.UserRepo.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ [sortBy]: order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ [sortBy]: order === SortOrderEnum.ASC ? 1 : -1 })
 			.select(selectUserInfo)
 			.paginate(page, limit)
 			.exec();

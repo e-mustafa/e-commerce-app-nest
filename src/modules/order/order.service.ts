@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@/common/exceptions';
 import { IPaginatedResult, IUserBody, QueryFilter } from '@/common/types';
-import { sortOrderEnum } from '@/providers/database';
+import { SortOrderEnum } from '@/providers/database';
 import { searchRegex } from '@/providers/database/query-builder';
 import { cachePrefix } from '@/providers/redis/interceptors';
 import { RedisService } from '@/providers/redis/redis.service';
@@ -209,7 +209,7 @@ export class OrderService {
 		const orders = await this.orderRepo
 			.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ createdAt: order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ createdAt: order === SortOrderEnum.ASC ? 1 : -1 })
 			.paginate(page, limit)
 			.populate<IOrderWData>(orderPopulates)
 			.exec();

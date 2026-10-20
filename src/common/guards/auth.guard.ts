@@ -1,13 +1,14 @@
-import { UserRepository } from '@/modules/user/user.repository';
 import { UserStatusEnum } from '@/modules/user/user.enums';
+import { UserRepository } from '@/modules/user/user.repository';
 import { IJwtPayload } from '@/providers/security';
 import { TokenService } from '@/providers/security/services/token.service';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
+import { IS_OPTIONAL_AUTH_KEY } from '../decorators';
 import { UnauthorizedException } from '../exceptions';
 import { IUserBody } from '../types';
-import { IS_OPTIONAL_AUTH_KEY } from '../decorators';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,13 +18,16 @@ export class AuthGuard implements CanActivate {
 		private readonly reflector: Reflector,
 	) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean> {
+	async canActivate(context: GqlExecutionContext): Promise<boolean> {
+		const contextType = context.getType();
 		const isOptional = this.reflector.getAllAndOverride<boolean>(IS_OPTIONAL_AUTH_KEY, [
 			context.getHandler(),
 			context.getClass(),
 		]);
-		const http = context.switchToHttp();
-		const req = http.getRequest<Request>();
+
+		let req = context.switchToHttp().getRequest<Request>();
+		// For GraphQL
+		if (contextType === 'graphql') req = GqlExecutionContext.create(context).getContext().req;
 
 		const authorization = req.headers.authorization;
 		if (!authorization) {

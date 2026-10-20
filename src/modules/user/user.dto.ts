@@ -1,5 +1,5 @@
 import { generalFields, getFileSchema } from '@/common/validation';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import z from 'zod';
 import { GenderEnum, ProviderEnum, RoleEnum, StatusReasonEnum, TGendersKey, UserRoles, UserStatusEnum } from './user.enums';
 
@@ -89,7 +89,7 @@ export const getUsersSchema = {
 	query: z.object({
 		page: generalFields.page.default(1).optional(),
 		limit: generalFields.limit.default(10).optional(),
-		order: generalFields.order.default(sortOrderEnum.DESC).optional(),
+		order: generalFields.order.default(SortOrderEnum.DESC).optional(),
 		sortBy: z.string().default('createdAt').optional(),
 		search: generalFields.search.optional(),
 

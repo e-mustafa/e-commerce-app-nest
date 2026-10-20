@@ -1,6 +1,8 @@
 import { type EnvConfig, envConfig } from '@/config';
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Inject, Logger, Optional } from '@nestjs/common';
+import { Catch, ExceptionFilter, HttpException, HttpStatus, Inject, Logger, Optional } from '@nestjs/common';
+import { GqlExecutionContext, GraphQLExecutionContext } from '@nestjs/graphql';
 import { Request, Response } from 'express';
+import { GraphQLError } from 'graphql';
 import { AppException } from '../exceptions';
 import { IFieldErrors } from '../types';
 
@@ -16,13 +18,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		this.isDev = this.ENV.isDev;
 	}
 
-	catch(exception: unknown, host: ArgumentsHost): void {
-		const ctx = host.switchToHttp();
-		const req = ctx.getRequest<Request>();
-		const res = ctx.getResponse<Response>();
+	catch(exception: unknown, host: GraphQLExecutionContext): void {
+		const contextType = host.getType();
+		let isGraphQL = false;
 
-		const startTime = req.startAt;
+		let req = host.switchToHttp().getRequest<Request>();
+		let res = host.switchToHttp().getResponse<Response>();
 
+		if (contextType === 'graphql') {
+			isGraphQL = true;
+			req = GqlExecutionContext.create(host).getContext().req;
+			res = GqlExecutionContext.create(host).getContext().res;
+		}
+
+		const startTime = req?.startAt || 0;
+		console.log({ startTime });
 		let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 		let message: string | string[] = 'Internal server error';
 		let context = 'server_error';
@@ -88,9 +98,30 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 			...(remainingSeconds !== undefined && { remainingSeconds }),
 		};
 
+		if (isGraphQL) {
+			const devErrorInfo =
+				!this.isDev || process.env.NODE_ENV === 'production'
+					? {}
+					: {
+							error: {
+								context,
+								timestamp: new Date().toISOString(),
+								...(exception instanceof Error ? { name: exception.name, stack: exception.stack } : { exception }),
+							},
+						};
+
+			throw new GraphQLError(Array.isArray(message) ? message.join(', ') : message, {
+				extensions: {
+					code: context.toUpperCase(),
+					...baseResponseBody,
+					...devErrorInfo,
+				},
+			});
+		}
+
 		// Return production response (clean details)
 		if (!this.isDev || process.env.NODE_ENV === 'production') {
-			res.status(statusCode).json(baseResponseBody);
+			res?.status(statusCode).json(baseResponseBody);
 			return;
 		}
 

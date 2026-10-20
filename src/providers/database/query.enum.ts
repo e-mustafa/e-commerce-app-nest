@@ -1,6 +1,6 @@
-export const sortOrderEnum = {
+export const SortOrderEnum = {
 	ASC: 'asc',
 	DESC: 'desc',
 } as const;
 
-export type TSortOrder = (typeof sortOrderEnum)[keyof typeof sortOrderEnum];
+export type SortOrderEnum = (typeof SortOrderEnum)[keyof typeof SortOrderEnum];

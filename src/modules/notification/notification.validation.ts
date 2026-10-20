@@ -1,6 +1,6 @@
 import { generalFields } from '@/common/validation';
 import { appConfig } from '@/config';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import z from 'zod';
 
 const { defaultOrder, defaultLimit } = appConfig().notification;
@@ -16,7 +16,7 @@ export const getNotificationsSchema = {
 	query: z.object({
 		page: generalFields.page.default(1).optional(),
 		limit: generalFields.limit.default(defaultLimit || 10).optional(),
-		order: generalFields.order.default(defaultOrder || sortOrderEnum.DESC).optional(),
+		order: generalFields.order.default(defaultOrder || SortOrderEnum.DESC).optional(),
 		unreadOnly: z.coerce.boolean().optional(),
 	}),
 };

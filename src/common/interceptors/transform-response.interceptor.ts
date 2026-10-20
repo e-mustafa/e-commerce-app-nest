@@ -1,4 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -12,16 +13,18 @@ export class TransformResponseInterceptor<T> implements NestInterceptor<T, ISucc
 
 	intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ISuccessResponse<T>> {
 		const ctx = context.switchToHttp();
-		const req = ctx.getRequest<Request>();
+		let req = ctx.getRequest<Request>();
 		const res = ctx.getResponse<Response>();
-
+		if (!req) {
+			req = GqlExecutionContext.create(context).getContext().req;
+		}
 		const startTime = req.startAt;
 
 		return next.handle().pipe(
 			tap(() => {
 				if (startTime) {
 					const duration = Date.now() - (startTime || 0);
-					this.logger.log(`[${req.method}] ${req.url} - ${res.statusCode} - ${duration}ms`);
+					this.logger.log(`[${req.method}] ${req.url} ${res.statusCode ? `- ${res.statusCode}` : ''} - ${duration}ms`); // prettier-ignore- res.statusCode || ''} - ${duration}ms`);
 				}
 			}),
 			map((payload: T | ISuccessResponse<T>): ISuccessResponse<T> => {

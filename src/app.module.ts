@@ -1,7 +1,10 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { Request } from 'express';
 import { join } from 'node:path';
 import { GlobalExceptionFilter } from './common/filters';
 import { ImagePathInterceptor } from './common/interceptors';
@@ -38,6 +41,15 @@ import { UploadModule } from './providers/upload/upload.module';
 		ServeStaticModule.forRoot({
 			rootPath: join(__dirname, 'uploads'),
 			serveRoot: '/uploads',
+		}),
+
+		// GraphQL Module
+		GraphQLModule.forRoot<ApolloDriverConfig>({
+			driver: ApolloDriver,
+			autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+			sortSchema: true,
+			context: ({ req }: { req: Request }) => ({ req }),
+			path: 'graphql',
 		}),
 
 		// Global common modules/Providers

@@ -1,4 +1,4 @@
-import { sortOrderEnum } from '@/providers/database';
+import { SortOrderEnum } from '@/providers/database';
 import { Readable } from 'node:stream';
 import z from 'zod';
 
@@ -108,7 +108,7 @@ export const generalFields = {
 
 	page: z.coerce.number().int().min(1).default(1),
 	limit: z.coerce.number().int().min(1).max(100).default(10),
-	order: z.enum(Object.values(sortOrderEnum)),
+	order: z.enum(Object.values(SortOrderEnum)),
 	search: z
 		.string()
 		.trim()

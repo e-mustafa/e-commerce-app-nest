@@ -1,5 +1,5 @@
 import { type ConfigType, registerAs } from '@nestjs/config';
-import { sortOrderEnum } from '../providers/database/query.enum';
+import { SortOrderEnum } from '../providers/database/query.enum';
 import { StorageDiskEnum, StorageDiskFileEnum, StorageProviderEnum } from '../providers/upload';
 
 export type AppConfig = ConfigType<typeof appConfig>;
@@ -80,7 +80,7 @@ export const appConfig = registerAs('app', () => ({
 			icon: { name: 'icon', maxCount: 1 },
 			cover: { name: 'cover', maxCount: 1 },
 		},
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	brand: {
@@ -89,7 +89,7 @@ export const appConfig = registerAs('app', () => ({
 			icon: { name: 'icon', maxCount: 1 },
 			cover: { name: 'cover', maxCount: 1 },
 		},
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	product: {
@@ -97,7 +97,7 @@ export const appConfig = registerAs('app', () => ({
 			maxSize: 15 * 1024 * 1024, // 15MB
 			maxCount: 10,
 		},
-		defaultOrder: sortOrderEnum.ASC,
+		defaultOrder: SortOrderEnum.ASC,
 		defaultLimit: 10,
 		cacheTTL: 60 * 5,
 	},
@@ -106,28 +106,28 @@ export const appConfig = registerAs('app', () => ({
 			maxSize: 10 * 1024 * 1024, // 10MB
 			maxCount: 4,
 		},
-		defaultOrder: sortOrderEnum.ASC,
+		defaultOrder: SortOrderEnum.ASC,
 		defaultLimit: 10,
 	},
 	cart: {
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	coupon: {
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	order: {
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 		orderNumberPrefix: 'ORD-',
 	},
 	notification: {
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	chat: {
-		defaultOrder: sortOrderEnum.DESC,
+		defaultOrder: SortOrderEnum.DESC,
 		defaultLimit: 10,
 	},
 	socket: {
