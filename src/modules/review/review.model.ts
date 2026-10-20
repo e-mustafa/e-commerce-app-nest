@@ -4,7 +4,10 @@ import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User } from '../user/user.model';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Product } from '../product/product.model';
 
+@ObjectType(Review.name)
 @Schema(schemaOptions)
 export class Review {
 	// static async calcAverageRatings (productId) {
@@ -23,13 +26,18 @@ export class Review {
 	// 	]);
 	// 	console.log('stats', stats);
 	// };
+	@Field(() => ID)
+	_id: Id;
 
+	@Field(() => User)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	author: Id;
 
+	@Field(() => Product)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Product', required: true })
 	product: Id;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -39,6 +47,7 @@ export class Review {
 	})
 	title: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -48,20 +57,23 @@ export class Review {
 	})
 	comment: string;
 
-	@Prop({
-		type: String,
-		minLength: [3, 'Description must be at least 3 characters'],
-		maxLength: [1000, 'Description must be at most 1000 characters'],
-		trim: true,
-	})
-	description: string;
+	// @Prop({
+	// 	type: String,
+	// 	minLength: [3, 'Description must be at least 3 characters'],
+	// 	maxLength: [1000, 'Description must be at most 1000 characters'],
+	// 	trim: true,
+	// })
+	// description: string;
 
+	@Field(() => [DBImage], { nullable: true })
 	@Prop({ type: [DBImageSchema], nullable: true })
 	images: DBImage[] | null;
 
+	@Field(() => Number)
 	@Prop({ type: Number, min: 1, max: 5 })
 	rating: number;
 
+	@Field(() => [User])
 	@Prop([{ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true }])
 	likedBy: Id;
 }

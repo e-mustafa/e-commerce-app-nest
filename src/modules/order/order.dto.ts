@@ -1,11 +1,11 @@
 import { generalFields } from '@/common/validation';
 import { appConfig } from '@/config';
-import { sortOrderEnum } from '@/providers/database';
+import { SortOrderEnum } from '@/providers/database';
 import z from 'zod';
 import { couponFields } from '../coupon/coupon.dto';
 import { OrderStatusEnum, PaymentMethodEnum, PaymentStatusEnum, ShippingStatusEnum } from './order.enums';
 
-const { defaultLimit = 10, defaultOrder = sortOrderEnum.DESC } = appConfig().order || {};
+const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().order || {};
 
 const addressSchema = z.strictObject({
 	street: z.string().min(1, 'Street is required').max(120, 'Street must be at most 120 characters long'),

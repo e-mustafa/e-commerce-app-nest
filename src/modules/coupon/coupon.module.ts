@@ -8,6 +8,7 @@ import { CouponAdminController } from './coupon.controller.admin';
 import { couponModel } from './coupon.model';
 import { CouponRepository } from './coupon.repository';
 import { CouponService } from './coupon.service';
+import { CouponResolver } from './qraphql/coupon.gql.resolver';
 
 @Module({
 	imports: [
@@ -18,7 +19,7 @@ import { CouponService } from './coupon.service';
 		forwardRef(() => BrandModule),
 	],
 	controllers: [CouponController, CouponAdminController],
-	providers: [CouponService, CouponRepository],
+	providers: [CouponService, CouponRepository, CouponResolver],
 	exports: [CouponService, CouponRepository, CouponService],
 })
 export class CouponModule {}

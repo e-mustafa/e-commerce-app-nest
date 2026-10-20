@@ -1,4 +1,5 @@
 import { TRet } from '@/common/types';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory, SchemaOptions } from '@nestjs/mongoose';
 
 export const schemaOptions: SchemaOptions = {
@@ -17,11 +18,14 @@ export const schemaOptions: SchemaOptions = {
 	},
 };
 
+@ObjectType()
 @Schema({ _id: false })
 export class DBImage {
+	@Field(() => String)
 	@Prop({ type: String, trim: true })
 	id: string;
 
+	@Field(() => String)
 	@Prop({ type: String, required: true, trim: true })
 	url: string;
 }

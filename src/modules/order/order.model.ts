@@ -7,6 +7,7 @@ import { Coupon } from '../coupon/coupon.model';
 import { Product } from '../product/product.model';
 import { User } from '../user/user.model';
 import { OrderStatusEnum, PaymentMethodEnum, PaymentStatusEnum, ShippingStatusEnum } from './order.enums';
+import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
 
 @Schema({ _id: false })
 export class Address {
@@ -32,23 +33,30 @@ export class Address {
 	phone: string;
 }
 
+@ObjectType({ description: 'Order item' })
 @Schema({ _id: true })
 export class OrderItem {
+	@Field(() => Product)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Product.name, required: true })
 	product: Id;
 
+	@Field(() => Number)
 	@Prop({ type: Number, required: true, min: [1, 'Quantity must be at least 1'], default: 1 })
 	quantity: number;
 
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, min: [0, 'Original price must be at least 0'] })
 	price: number; // Historical original price snapshot
 
+	@Field(() => Float)
 	@Prop({ type: Number, min: [0, 'Discount must be at least 0'], default: 0 })
 	discount: number; // Historical product-level discount per unit snapshot
 
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, min: [0, 'Final unit price must be at least 0'] })
 	finalPrice: number; // Historical final unit price (price - discount)
 
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, min: [0, 'Sub total must be at least 0'] })
 	subTotal: number; // finalPrice * quantity
 
@@ -59,35 +67,49 @@ export class OrderItem {
 	// subTotal: number;
 }
 
+@ObjectType({ description: 'Order' })
 @Schema(schemaOptions)
 export class Order {
+	@Field(() => ID)
+	_id: Id;
+
+	@Field(() => User)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	user: Id;
 
+	@Field(() => String)
 	@Prop({ type: String, required: true, unique: true, index: true })
 	orderNumber: string;
 
+	@Field(() => String, { nullable: true })
 	@Prop({ type: String, maxLength: [200, 'Note must be at most 200 characters'], trim: true })
 	note?: string;
 
+	@Field(() => [OrderItem])
 	@Prop({ type: [OrderItem], default: [] })
 	items: OrderItem[];
 
+	@Field(() => Float)
 	@Prop({ type: Number, default: 0 })
 	subTotal: number;
 
+	@Field(() => Float)
 	@Prop({ type: Number, default: 0 })
 	shippingCost: number;
 
+	@Field(() => Float)
 	@Prop({ type: Number, default: 0 })
 	discountAmount: number;
 
+	@Field(() => Float)
 	@Prop({ type: Number, default: 0 })
 	taxAmount: number;
 
+	@Field(() => Coupon, { nullable: true })
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Coupon.name })
 	appliedCoupon?: Id;
 
+	@Field(() => Float)
 	@Prop({ type: Number, required: true, default: 0 })
 	finalTotal: number;
 

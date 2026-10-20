@@ -1,10 +1,10 @@
 import { generalFields } from '@/common/validation';
 import { appConfig } from '@/config';
-import { sortOrderEnum } from '@/providers/database';
+import { SortOrderEnum } from '@/providers/database';
 import z from 'zod';
 import { couponApplicableOnTypes, CouponTypeEnum, couponTypes } from './coupon.enums';
 
-const { defaultLimit = 10, defaultOrder = sortOrderEnum.DESC } = appConfig().coupon || {};
+const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().coupon || {};
 
 export const couponFields = {
 	code: z
@@ -52,13 +52,13 @@ const couponSchema = z.strictObject({
 	value: couponFields.value,
 	description: couponFields.description.optional(),
 	applicableOn: couponFields.applicableOn,
-	createdBy: couponFields.createdBy,
+	// createdBy: couponFields.createdBy,
 	minPurchaseAmount: couponFields.minPurchaseAmount,
-	maxDiscountAmount: couponFields.maxDiscountAmount,
+	maxDiscountAmount: couponFields.maxDiscountAmount.optional(),
 	usageLimit: couponFields.usageLimit,
-	usagePerUser: couponFields.usagePerUser,
+	usagePerUser: couponFields.usagePerUser.optional(),
 	startDate: couponFields.startDate,
-	endDate: couponFields.endDate,
+	endDate: couponFields.endDate.optional(),
 	isActive: couponFields.isActive,
 	products: couponFields.products,
 	categories: couponFields.categories,
@@ -122,11 +122,12 @@ export type UpdateCouponDTO = z.infer<typeof updateCouponSchema.body>;
 
 export const couponQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 		search: generalFields.search.optional(),
 		isPublished: z.coerce.boolean().optional(),
+		isActive: z.coerce.boolean().optional(),
 	}),
 };
 

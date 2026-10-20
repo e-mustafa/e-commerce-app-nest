@@ -1,9 +1,9 @@
 import { generalFields } from '@/common/validation';
 import { appConfig } from '@/config';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import z from 'zod';
 
-const { defaultLimit = 10, defaultOrder = sortOrderEnum.DESC } = appConfig().category || {};
+const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().category || {};
 
 const categoryFields = {
 	name: z

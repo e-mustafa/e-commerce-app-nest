@@ -4,9 +4,15 @@ import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { User } from '../user/user.model';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
+@ObjectType(Brand.name)
 @Schema(schemaOptions)
 export class Brand {
+	@Field(() => ID)
+	_id: Id;
+
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -17,6 +23,7 @@ export class Brand {
 	})
 	name: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -28,6 +35,7 @@ export class Brand {
 	})
 	slug: string;
 
+	@Field(() => String, { nullable: true })
 	@Prop({
 		type: String,
 		minLength: [3, 'Description must be at least 3 characters'],
@@ -36,23 +44,29 @@ export class Brand {
 	})
 	description: string;
 
+	@Field(() => DBImage, { nullable: true })
 	@Prop({ type: DBImageSchema, nullable: true })
 	icon: DBImage | null;
 
+	@Field(() => DBImage, { nullable: true })
 	@Prop({ type: DBImageSchema, nullable: true })
 	cover: DBImage | null;
 
+	@Field(() => User)
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
 	createdBy: Id;
 
+	@Field(() => Date, { nullable: true })
 	@Prop({ type: Date, default: Date.now }) // default published
 	publishedAt?: Date | null;
 
 	// Sequence order for navigation bar and lists
+	@Field(() => Number)
 	@Prop({ type: Number, default: 0 })
 	order: number;
 
 	// Soft delete flag
+	@Field(() => Date, { nullable: true })
 	@Prop({ type: Date, default: null })
 	deletedAt?: Date | null;
 }

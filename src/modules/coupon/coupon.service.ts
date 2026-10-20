@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { searchRegex } from '@/providers/database/query-builder';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import { Injectable } from '@nestjs/common';
 import { brandMinSelect, IBrand } from '../brand';
 import { BrandRepository } from '../brand/brand.repository';
@@ -192,7 +192,7 @@ export class CouponService {
 		}
 	}
 
-	async listCoupons({ user, page, limit, order, search, isPublished }: I.IListCouponPayload) {
+	async listCoupons({ user, page, limit, order, search, isPublished, isActive }: I.IListCouponPayload) {
 		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
 		const filter: QueryFilter<ICoupon> = {};
 
@@ -204,6 +204,14 @@ export class CouponService {
 				filter.publishedAt = null;
 			}
 		}
+		if (isActive !== undefined)
+			isActive
+				? (filter.$and = [{ startDate: { $lte: new Date() }, endDate: { $gte: new Date() } }])
+				: (filter.$or = [{ endDate: { $exists: false } }, { endDate: null }, { endDate: { $lte: new Date() } }]);
+
+		// if (scheduled) {
+		// 	filter.startDate = { $gte: new Date() };
+		// }
 
 		if (search?.trim()) {
 			// Escape special regex characters to prevent regex injection (ReDoS)
@@ -214,7 +222,7 @@ export class CouponService {
 		const coupons = await this.couponRepo
 			.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ createdAt: order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ createdAt: order === SortOrderEnum.ASC ? 1 : -1 })
 			.paginate(page, limit)
 			.populate<ICouponWData>(couponPopulates)
 			.exec();
@@ -222,7 +230,7 @@ export class CouponService {
 		return coupons;
 	}
 
-	async getCoupon(user: IUserBody, couponId: Id) {
+	async getCoupon(user: IUserBody, couponId: Id): Promise<ICouponWData> {
 		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
 		const coupon = await this.couponRepo
 			.findById(couponId, { ignoreDefaultFilters: isAdmin })

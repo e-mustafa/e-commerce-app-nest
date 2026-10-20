@@ -1,3 +1,5 @@
+import { registerEnumType } from '@nestjs/graphql';
+
 export const GenderEnum = {
 	MALE: 0,
 	FEMALE: 1,
@@ -51,3 +53,24 @@ export const StatusReasonEnum = {
 	// USER_REACTIVATION = 'USER_REACTIVATION',
 } as const;
 export type StatusReasonEnum = (typeof StatusReasonEnum)[keyof typeof StatusReasonEnum];
+
+registerEnumType(GenderEnum, {
+	name: 'GenderEnum',
+	description: 'Gender of the user',
+});
+registerEnumType(ProviderEnum, {
+	name: 'ProviderEnum',
+	description: 'Provider of the user',
+});
+registerEnumType(RoleEnum, {
+	name: 'RoleEnum',
+	description: 'Role of the user',
+});
+registerEnumType(UserStatusEnum, {
+	name: 'UserStatusEnum',
+	description: 'Status of the user',
+});
+registerEnumType(StatusReasonEnum, {
+	name: 'StatusReasonEnum',
+	description: 'Reason for the status change of the user',
+});

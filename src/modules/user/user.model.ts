@@ -2,6 +2,7 @@ import { calcAge } from '@/common/utils/date';
 import { DBImage } from '@/providers/database/schemas';
 import { EncryptionService } from '@/providers/security/services/encryption.service';
 import { HashingService } from '@/providers/security/services/hashing.service';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
@@ -15,6 +16,9 @@ export type UserTransformRet = Partial<User> & {
 	__v?: number;
 };
 
+@ObjectType('User', {
+	description: 'User model',
+})
 @Schema({
 	timestamps: true,
 	strict: true,
@@ -22,6 +26,7 @@ export type UserTransformRet = Partial<User> & {
 	toObject: { virtuals: true },
 })
 export class User {
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -31,6 +36,7 @@ export class User {
 	})
 	firstName: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -40,6 +46,7 @@ export class User {
 	})
 	lastName: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: true,
@@ -51,6 +58,7 @@ export class User {
 	})
 	username: string;
 
+	@Field(() => String)
 	@Prop({
 		type: String,
 		required: [true, 'Email required.'],
@@ -62,6 +70,7 @@ export class User {
 	})
 	email: string;
 
+	// @Field(() => String, { nullable: true })
 	@Prop({
 		type: String,
 		required: [
@@ -74,6 +83,7 @@ export class User {
 	})
 	password: string;
 
+	@Field(() => ProviderEnum, { defaultValue: ProviderEnum.SYSTEM })
 	@Prop({
 		type: String,
 		enum: {
@@ -84,6 +94,7 @@ export class User {
 	})
 	provider: ProviderEnum;
 
+	@Field(() => RoleEnum, { defaultValue: RoleEnum.USER })
 	@Prop({
 		type: Number,
 		enum: Object.values(RoleEnum),
@@ -91,22 +102,27 @@ export class User {
 	})
 	role: RoleEnum;
 
+	@Field(() => GenderEnum, { defaultValue: GenderEnum.MALE })
 	@Prop({
 		type: Number,
 		enum: Object.values(GenderEnum),
 		default: GenderEnum.MALE,
 	})
-	gender: number;
+	gender: GenderEnum;
 
+	@Field(() => String)
 	@Prop(String)
 	bio: string;
 
+	@Field(() => DBImage, { nullable: true })
 	@Prop({ type: DBImage, default: null, nullable: true })
 	avatar: DBImage | null;
 
+	@Field(() => DBImage, { nullable: true })
 	@Prop({ type: DBImage, default: null, nullable: true })
 	cover: DBImage | null;
 
+	@Field(() => Date)
 	@Prop({
 		type: Date,
 		validate: {
@@ -118,15 +134,19 @@ export class User {
 	})
 	birthdate: Date;
 
+	@Field(() => String)
 	@Prop(String)
 	phone: string;
 
+	@Field(() => Date)
 	@Prop(Date)
 	verifiedAt: Date;
 
+	@Field(() => Date)
 	@Prop(Date)
 	loggedOutAllAt: Date;
 
+	@Field(() => UserStatusEnum, { defaultValue: UserStatusEnum.ACTIVE })
 	@Prop({
 		type: String,
 		enum: Object.values(UserStatusEnum),
@@ -134,27 +154,33 @@ export class User {
 	})
 	status: UserStatusEnum;
 
+	@Field(() => StatusReasonEnum, { nullable: true })
 	@Prop({
 		type: String,
 		enum: Object.values(StatusReasonEnum),
 	})
 	statusReason: StatusReasonEnum;
 
+	@Field(() => Date)
 	@Prop(Date)
 	statusChangedAt: Date;
 
+	// @Field(() => [String])
 	@Prop([String])
 	deviceTokens: string[];
 
+	@Field(() => Boolean, { defaultValue: true })
 	@Prop({
 		type: Boolean,
 		default: true,
 	})
 	notificationEnabled: boolean;
 
+	@Field(() => Date)
 	@Prop(Date)
 	deletedAt: Date;
 
+	@Field(() => Date)
 	@Prop(Date)
 	lastSeenAt: Date;
 

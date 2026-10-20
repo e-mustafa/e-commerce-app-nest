@@ -2,7 +2,7 @@ import { ConflictException, NotFoundException } from '@/common/exceptions';
 import { Id, IUserBody, QueryFilter } from '@/common/types';
 import { slugify } from '@/common/utils/slugify.util';
 import { searchRegex } from '@/providers/database/query-builder';
-import { sortOrderEnum } from '@/providers/database/query.enum';
+import { SortOrderEnum } from '@/providers/database/query.enum';
 import { DBImage } from '@/providers/database/schemas';
 import { type IUploadService, TDeleteAttachment, UPLOAD_SERVICE, UploadPathBuilder } from '@/providers/upload';
 import { Inject, Injectable } from '@nestjs/common';
@@ -38,7 +38,7 @@ export class CategoryService {
 		const categories = await this.categoryRepo
 			.find(filter, { ignoreDefaultFilters: isAdmin })
 			.lean()
-			.sort({ createdAt: order === sortOrderEnum.ASC ? 1 : -1 })
+			.sort({ createdAt: order === SortOrderEnum.ASC ? 1 : -1 })
 			.paginate(page, limit)
 			.exec();
 

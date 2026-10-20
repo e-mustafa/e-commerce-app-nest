@@ -102,7 +102,6 @@ export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
 			const totalPages = Math.ceil(total / this.limitNum);
 
 			return {
-				data: data as unknown as R,
 				metadata: {
 					page: this.pageNum,
 					limit: this.limitNum,
@@ -111,6 +110,7 @@ export class RepositoryQueryBuilder<T, R = HydratedDocument<T>> {
 					hasNext: this.pageNum < totalPages,
 					hasPrev: this.pageNum > 1,
 				},
+				data: data as unknown as R,
 			} as R;
 		}
 
