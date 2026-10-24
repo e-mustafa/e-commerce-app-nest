@@ -15,7 +15,7 @@ import {
 	ISessionInfo,
 	ISessionResponse,
 	IUser,
-	ProviderEnum,
+	AccountProviderEnum,
 	selectUserInfo,
 	StatusReasonEnum,
 	UserStatusEnum,
@@ -336,12 +336,12 @@ export default class AuthService {
 		clientIp,
 		userAgent,
 	}: I.ISocialLoginPayload & { clientIp?: string; userAgent?: string }): Promise<{ isNew: boolean; tokens: TTokens }> {
-		if (!provider || !Object.values(ProviderEnum).includes(provider)) {
+		if (!provider || !Object.values(AccountProviderEnum).includes(provider)) {
 			throw new InternalException('Invalid provider');
 		}
 
 		let payload: TokenPayload | undefined;
-		if (provider === ProviderEnum.GOOGLE) {
+		if (provider === AccountProviderEnum.GOOGLE) {
 			payload = await this.googleAuthService.verifyOAuth2Google(idToken);
 		}
 		if (!payload) throw new BadRequestException('Invalid id token');
@@ -356,7 +356,7 @@ export default class AuthService {
 		const isExists = await this.UserRepo.findByEmail(email, { ignoreDefaultFilters: true }).exec();
 
 		if (isExists && isExists.provider !== provider) {
-			if (isExists.provider === ProviderEnum.SYSTEM) {
+			if (isExists.provider === AccountProviderEnum.SYSTEM) {
 				throw new BadRequestException('Email already exists with password, please login with password');
 			} else {
 				throw new BadRequestException('Email already exists with another provider');

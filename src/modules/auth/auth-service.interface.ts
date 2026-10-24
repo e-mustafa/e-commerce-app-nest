@@ -1,5 +1,5 @@
 import { Id } from '@/common/types';
-import { ProviderEnum } from '../user';
+import { AccountProviderEnum } from '../user';
 import type * as dto from './auth.dto';
 
 export interface ICheckUsernamePayload extends dto.CheckUserNameDTO {
@@ -21,7 +21,7 @@ export interface IRefreshAccessTokenPayload {
 }
 
 export interface ISocialLoginPayload extends dto.SocialGoogleDTO {
-	provider: ProviderEnum;
+	provider: AccountProviderEnum;
 	clientIp?: string;
 	userAgent?: string;
 }

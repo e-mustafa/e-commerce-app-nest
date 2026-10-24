@@ -2,7 +2,7 @@ import { AUser, Auth } from '@/common/decorators';
 import type { Id } from '@/common/types';
 import { Body, Controller, Cookies, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { ProviderEnum } from '../user';
+import { AccountProviderEnum } from '../user';
 import type * as dto from './auth.dto';
 import * as S from './auth.dto';
 import AuthService from './services/auth.service';
@@ -106,7 +106,7 @@ export default class AuthController {
 	) {
 		const { isNew, tokens } = await this.service.socialLogin_google({
 			...body,
-			provider: ProviderEnum.GOOGLE,
+			provider: AccountProviderEnum.GOOGLE,
 			clientIp: req.ip || req.socket.remoteAddress,
 			userAgent: req.get('user-agent'),
 		});
