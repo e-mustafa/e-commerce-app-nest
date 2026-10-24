@@ -62,9 +62,9 @@ export type UpdateReviewDTO = z.infer<typeof updateReviewSchema.body>;
 
 export const reviewQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 		search: generalFields.search.optional(),
 		author: generalFields.id.optional(),
 	}),

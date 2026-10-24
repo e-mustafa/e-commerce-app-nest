@@ -191,6 +191,16 @@ type Query {
   listUsers(gender: GenderEnum, isDeleted: Boolean, isVerified: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, provider: AccountProviderEnum, role: RoleEnum, search: String, sortBy: String, status: UserStatusEnum, statusReason: StatusReasonEnum): PaginatedUsers!
 }
 
+type Review {
+  _id: ID!
+  author: User!
+  comment: String!
+  images: [DBImage!]
+  likedBy: [User!]!
+  product: Product!
+  rating: Float!
+  title: String!
+}
 
 """Role of the user"""
 enum RoleEnum {
