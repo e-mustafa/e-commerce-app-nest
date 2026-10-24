@@ -19,8 +19,8 @@ export class BrandService {
 		@Inject(UPLOAD_SERVICE) private readonly uploadService: IUploadService,
 	) {}
 
-	async listBrands({ user, page, limit, order, search, isPublished }: I.IListBrandPayload) {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+	async listBrands({ user, page, limit, order, search, isPublished, createdBy }: I.IListBrandPayload) {
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const filter: QueryFilter<IBrand> = {};
 
 		// Safely filter by publishedAt date type to prevent Mongoose CastError
@@ -31,6 +31,8 @@ export class BrandService {
 				filter.publishedAt = null;
 			}
 		}
+
+		if (createdBy && isAdmin) filter.createdBy = createdBy;
 
 		if (search?.trim()) {
 			// Escape special regex characters to prevent regex injection (ReDoS)
@@ -49,7 +51,7 @@ export class BrandService {
 	}
 
 	async getBrand(user: IUserBody, brandId: Id) {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const brand = await this.brandRepo.findById(brandId, { ignoreDefaultFilters: isAdmin }).lean<IBrand>().exec();
 		if (!brand) throw new NotFoundException('Brand not found.');
 

@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""Provider of the user account"""
+enum AccountProviderEnum {
+  FACEBOOK
+  GOOGLE
+  SYSTEM
+  TWITTER
+}
+
 type Brand {
   _id: ID!
   cover: DBImage
@@ -80,13 +88,38 @@ type OrderItem {
   subTotal: Float!
 }
 
+type PaginatedBrands {
+  data: [Brand!]!
+  metadata: PaginationMetadataResponse!
+}
+
+type PaginatedCategories {
+  data: [Category!]!
+  metadata: PaginationMetadataResponse!
+}
+
 type PaginatedCoupons {
   data: [Coupon!]!
   metadata: PaginationMetadataResponse!
 }
 
+type PaginatedOrders {
+  data: [Order!]!
+  metadata: PaginationMetadataResponse!
+}
+
 type PaginatedProducts {
   data: [Product!]!
+  metadata: PaginationMetadataResponse!
+}
+
+type PaginatedReviews {
+  data: [Review!]!
+  metadata: PaginationMetadataResponse!
+}
+
+type PaginatedUsers {
+  data: [User!]!
   metadata: PaginationMetadataResponse!
 }
 
@@ -135,11 +168,22 @@ enum ProviderEnum {
 }
 
 type Query {
+  getBrand(brandId: String!): Brand!
+  getCategory(categoryId: String!): Category!
   getCoupon(couponId: String!): Coupon!
+  getOrder(orderId: String!): Order!
   getProduct(productId: String!): Product!
+  getReview(reviewId: String!): Review!
+  getUser(userId: String!): User!
+  listBrands(createdBy: String, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, search: String): PaginatedBrands!
+  listCategories(createdBy: String, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, search: String): PaginatedCategories!
   listCoupons(isActive: Boolean, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, search: String): PaginatedCoupons!
+  listOrders(limit: Int = 10, order: String = "asc", page: Int = 1, paymentMethod: String, paymentStatus: String, search: String, status: String, userId: String): PaginatedOrders!
   listProducts(brand: String, category: String, createdBy: String, isActive: Boolean, isPublished: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, price: Float, search: String, sortBy: String, stock: Int, stockType: String, tag: [String!]): PaginatedProducts!
+  listReviews(author: String, limit: Int = 10, order: String = "asc", page: Int = 1, search: String): PaginatedReviews!
+  listUsers(gender: GenderEnum, isDeleted: Boolean, isVerified: Boolean, limit: Int = 10, order: String = "asc", page: Int = 1, provider: AccountProviderEnum, role: RoleEnum, search: String, sortBy: String, status: UserStatusEnum, statusReason: StatusReasonEnum): PaginatedUsers!
 }
+
 
 """Role of the user"""
 enum RoleEnum {
@@ -172,7 +216,7 @@ type User {
   loggedOutAllAt: DateTime!
   notificationEnabled: Boolean!
   phone: String!
-  provider: ProviderEnum!
+  provider: AccountProviderEnum!
   role: RoleEnum!
   status: UserStatusEnum!
   statusChangedAt: DateTime!

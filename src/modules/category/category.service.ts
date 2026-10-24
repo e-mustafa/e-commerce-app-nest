@@ -19,8 +19,8 @@ export class CategoryService {
 		@Inject(UPLOAD_SERVICE) private readonly uploadService: IUploadService,
 	) {}
 
-	async listCategories({ user, page, limit, order, search, parentId, isPublished }: I.IListCategoryPayload) {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+	async listCategories({ user, page, limit, order, search, parentId, isPublished, createdBy }: I.IListCategoryPayload) {
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const filter: QueryFilter<ICategory> = {};
 
 		if (parentId) filter.parentId = parentId;
@@ -28,6 +28,8 @@ export class CategoryService {
 		if (typeof isPublished === 'boolean' && isAdmin) {
 			filter.publishedAt = isPublished ? ({ $type: 'date' } as unknown as Date) : null;
 		}
+
+		if (createdBy && isAdmin) filter.createdBy = createdBy;
 
 		if (search?.trim()) {
 			// Escape special characters to prevent regex injection attacks
@@ -46,7 +48,7 @@ export class CategoryService {
 	}
 
 	async getCategory(user: IUserBody, categoryId: Id) {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const category = await this.categoryRepo.findById(categoryId, { ignoreDefaultFilters: isAdmin }).lean().exec();
 		if (!category) throw new NotFoundException('Category not found.');
 

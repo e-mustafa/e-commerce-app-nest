@@ -81,11 +81,12 @@ export type UpdateBrandDTO = z.infer<typeof updateBrandSchema.body>;
 
 export const brandQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 		search: generalFields.search.optional(),
 		isPublished: z.coerce.boolean().optional(),
+		createdBy: generalFields.id.optional(),
 	}),
 };
 
