@@ -1,76 +1,41 @@
-import { registerEnumType } from '@nestjs/graphql';
+export enum GenderEnum {
+	MALE = 'male',
+	FEMALE = 'female',
+}
 
-export const GenderEnum = {
-	MALE: 0,
-	FEMALE: 1,
-} as const;
+export enum AccountProviderEnum {
+	SYSTEM = 'system',
+	GOOGLE = 'google',
+	FACEBOOK = 'facebook',
+	TWITTER = 'twitter',
+}
 
-export type GenderEnum = (typeof GenderEnum)[keyof typeof GenderEnum];
-export type TGendersKey = keyof typeof GenderEnum;
+export enum RoleEnum {
+	USER = 'user',
+	ADMIN = 'admin',
+	SUPER_ADMIN = 'super_admin',
+}
 
-export const ProviderEnum = {
-	SYSTEM: 'system',
-	GOOGLE: 'google',
-	FACEBOOK: 'facebook',
-	TWITTER: 'twitter',
-} as const;
+export enum AdminRoleEnum {
+	ADMIN = 'admin',
+	SUPER_ADMIN = 'super_admin',
+}
 
-export type ProviderEnum = (typeof ProviderEnum)[keyof typeof ProviderEnum];
-
-export const RoleEnum = {
-	USER: 0,
-	ADMIN: 1,
-	SUPER_ADMIN: 2,
-} as const;
-
-export type RoleEnum = (typeof RoleEnum)[keyof typeof RoleEnum];
-export const UserRoles = Object.values(RoleEnum);
-
-export const AdminRoleEnum = {
-	ADMIN: 1,
-	SUPER_ADMIN: 2,
-} as const;
-
-export type AdminRoleEnum = (typeof AdminRoleEnum)[keyof typeof AdminRoleEnum];
 export const AdminRoles = Object.values(AdminRoleEnum);
 
-export const UserStatusEnum = {
-	ACTIVE: 'active',
-	INACTIVE: 'inactive',
-	BANNED: 'banned',
+export enum UserStatusEnum {
+	ACTIVE = 'active',
+	INACTIVE = 'inactive',
+	BANNED = 'banned',
 	// 'pending_deletion'
-	DELETING: 'pending_deletion',
-} as const;
+	DELETING = 'pending_deletion',
+}
 
-export type UserStatusEnum = (typeof UserStatusEnum)[keyof typeof UserStatusEnum];
-
-export const StatusReasonEnum = {
-	USER_REQUEST: 'USER_REQUEST',
-	ADMIN_ACTION: 'ADMIN_ACTION',
-	SECURITY_SUSPICION: 'SECURITY_SUSPICION',
-	INACTIVITY_TIMEOUT: 'INACTIVITY_TIMEOUT',
-	POLICY_VIOLATION: 'POLICY_VIOLATION',
+export enum StatusReasonEnum {
+	USER_REQUEST = 'USER_REQUEST',
+	ADMIN_ACTION = 'ADMIN_ACTION',
+	SECURITY_SUSPICION = 'SECURITY_SUSPICION',
+	INACTIVITY_TIMEOUT = 'INACTIVITY_TIMEOUT',
+	POLICY_VIOLATION = 'POLICY_VIOLATION',
 	// USER_REACTIVATION = 'USER_REACTIVATION',
-} as const;
-export type StatusReasonEnum = (typeof StatusReasonEnum)[keyof typeof StatusReasonEnum];
-
-registerEnumType(GenderEnum, {
-	name: 'GenderEnum',
-	description: 'Gender of the user',
-});
-registerEnumType(ProviderEnum, {
-	name: 'ProviderEnum',
-	description: 'Provider of the user',
-});
-registerEnumType(RoleEnum, {
-	name: 'RoleEnum',
-	description: 'Role of the user',
-});
-registerEnumType(UserStatusEnum, {
-	name: 'UserStatusEnum',
-	description: 'Status of the user',
-});
-registerEnumType(StatusReasonEnum, {
-	name: 'StatusReasonEnum',
-	description: 'Reason for the status change of the user',
-});
+}

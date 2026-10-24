@@ -1,12 +1,12 @@
 import { calcAge } from '@/common/utils/date';
-import { DBImage } from '@/providers/database/schemas';
+import { DBImage, schemaOptions } from '@/providers/database/schemas';
 import { EncryptionService } from '@/providers/security/services/encryption.service';
 import { HashingService } from '@/providers/security/services/hashing.service';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
-import { GenderEnum, ProviderEnum, RoleEnum, StatusReasonEnum, UserStatusEnum } from './user.enums';
+import { AccountProviderEnum, GenderEnum, RoleEnum, StatusReasonEnum, UserStatusEnum } from './user.enums';
 import { HUser } from './user.types';
 
 export type UserTransformRet = Partial<User> & {
@@ -16,15 +16,10 @@ export type UserTransformRet = Partial<User> & {
 	__v?: number;
 };
 
-@ObjectType('User', {
+@ObjectType(User.name, {
 	description: 'User model',
 })
-@Schema({
-	timestamps: true,
-	strict: true,
-	strictQuery: true,
-	toObject: { virtuals: true },
-})
+@Schema(schemaOptions)
 export class User {
 	@Field(() => String)
 	@Prop({
@@ -75,7 +70,7 @@ export class User {
 		type: String,
 		required: [
 			function (this: HUser) {
-				return this.provider === ProviderEnum.SYSTEM;
+				return this.provider === AccountProviderEnum.SYSTEM;
 			},
 			'Password required.',
 		],
@@ -83,20 +78,20 @@ export class User {
 	})
 	password: string;
 
-	@Field(() => ProviderEnum, { defaultValue: ProviderEnum.SYSTEM })
+	@Field(() => AccountProviderEnum, { defaultValue: AccountProviderEnum.SYSTEM })
 	@Prop({
 		type: String,
 		enum: {
-			values: Object.values(ProviderEnum),
+			values: Object.values(AccountProviderEnum),
 			message: "'{VALUE}' is not a valid provider", // {VALUE} will be replaced by the invalid value
 		},
-		default: ProviderEnum.SYSTEM,
+		default: AccountProviderEnum.SYSTEM,
 	})
-	provider: ProviderEnum;
+	provider: AccountProviderEnum;
 
 	@Field(() => RoleEnum, { defaultValue: RoleEnum.USER })
 	@Prop({
-		type: Number,
+		type: String,
 		enum: Object.values(RoleEnum),
 		default: RoleEnum.USER,
 	})
@@ -104,7 +99,7 @@ export class User {
 
 	@Field(() => GenderEnum, { defaultValue: GenderEnum.MALE })
 	@Prop({
-		type: Number,
+		type: String,
 		enum: Object.values(GenderEnum),
 		default: GenderEnum.MALE,
 	})

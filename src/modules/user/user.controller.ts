@@ -4,7 +4,7 @@ import type { Id, IFile, IUserBody } from '@/common/types';
 import { appConfig } from '@/config';
 import { fileTypes, UseUpload } from '@/providers/upload';
 import { Body, Controller, Delete, Get, Param, Patch, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { type ParamsUserIdDTO, paramsUserIdSchema, type UpdateProfileDTO, updateProfileSchema } from './user.dto';
+import { type UpdateProfileDTO, updateProfileSchema, type UserParamIdDTO, userParamIdSchema } from './user.dto';
 import UserService from './user.service';
 
 export const routes = {
@@ -96,7 +96,7 @@ export default class UserController {
 	// }
 
 	@Get(routes.getUserStatus)
-	async getUserStatus(@AUser('_id') userId: Id, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
+	async getUserStatus(@AUser('_id') userId: Id, @Param({ schema: userParamIdSchema.params }) params: UserParamIdDTO) {
 		const data = await this.services.getUserStatus(userId, params.userId);
 		return { data };
 	}

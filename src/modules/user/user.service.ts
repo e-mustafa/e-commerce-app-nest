@@ -118,7 +118,7 @@ export default class UserService {
 
 	// Admin ------------------------------------------------
 	async getUser(user: IUserBody, targetUserId: string): Promise<IUser> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 
 		const isId = objectIdRegex.test(targetUserId);
 		const filter = isId ? { _id: targetUserId } : { username: targetUserId };
@@ -141,7 +141,7 @@ export default class UserService {
 		search,
 		...query
 	}: IListUsersPayload): Promise<IPaginatedResult<IUserGeneral>> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const filter: QueryFilter<IUser> = { _id: { $ne: user?._id } };
 		filter.role = { $lt: user.role }; // only show users with a role lower than the user's own role
 
@@ -189,7 +189,7 @@ export default class UserService {
 	}
 
 	async updateUserRoleAdmin(user: IUserBody, targetUserId: string, role: RoleEnum) {
-		const isSuperAdmin = user.role === AdminRoleEnum.SUPER_ADMIN;
+		const isSuperAdmin = user.role === RoleEnum.SUPER_ADMIN;
 		if (!isSuperAdmin) throw new UnauthorizedException('Only super admin can change user role');
 
 		const targetUser = await this.UserRepo.findOne({ _id: targetUserId }, { ignoreDefaultFilters: true }).lean().exec();
@@ -199,7 +199,7 @@ export default class UserService {
 		if (targetUser.status !== UserStatusEnum.ACTIVE) {
 			throw new BadRequestException(`User is not active, current status: ${targetUser.status.toLowerCase()}`);
 		}
-		if (targetUser.role === AdminRoleEnum.SUPER_ADMIN) throw new BadRequestException('Super admin cannot be changed');
+		if (targetUser.role === RoleEnum.SUPER_ADMIN) throw new BadRequestException('Super admin cannot be changed');
 
 		const updatedUser = await this.UserRepo.findByIdAndUpdate(user._id, { $set: { role } }).select('-password').exec();
 		if (!updatedUser) {
@@ -209,13 +209,13 @@ export default class UserService {
 	}
 
 	// async banUserAdmin(user: IUserBody, targetUserId: string, statusReason: StatusReasonEnum) {
-	// 	const isAdmin = user.role === AdminRoleEnum.ADMIN;
+	// 	const isAdmin = user.role === RoleEnum.ADMIN;
 	// 	if (!isAdmin) throw new UnauthorizedException('Only admins can ban users');
 
 	// 	const targetUser = await this.UserRepo.findOne({ _id: targetUserId }, { ignoreDefaultFilters: true }).lean().exec();
 	// 	if (!targetUser) throw new NotFoundException('User not found');
 
-	// 	if (user.role === AdminRoleEnum.ADMIN && Object.values(AdminRoleEnum).find((role) => role === targetUser.role)) {
+	// 	if (user.role === RoleEnum.ADMIN && Object.values(RoleEnum).find((role) => role === targetUser.role)) {
 	// 		throw new BadRequestException('Admins cannot be banned by admins, only super admin can ban admins');
 	// 	}
 
@@ -224,7 +224,7 @@ export default class UserService {
 	// 		throw new BadRequestException(`User is already banned`);
 	// 	}
 
-	// 	if (targetUser.role === AdminRoleEnum.SUPER_ADMIN) throw new BadRequestException('Super admin cannot be banned');
+	// 	if (targetUser.role === RoleEnum.SUPER_ADMIN) throw new BadRequestException('Super admin cannot be banned');
 
 	// 	const updatedUser = await this.UserRepo.findByIdAndUpdate(user._id, {
 	// 		$set: { status: UserStatusEnum.BANNED, statusReason, statusChangedAt: new Date() },
@@ -238,13 +238,13 @@ export default class UserService {
 	// }
 
 	async updateUserStatusAdmin({ user, userId: targetUserId, status, statusReason }: IUpdateUserStatusPayload) {
-		const isAdmin = Object.values(AdminRoleEnum).find((role) => role === user.role);
+		const isAdmin = Object.values(RoleEnum).find((role) => role === user.role);
 		if (!isAdmin) throw new UnauthorizedException('Only admins can change user status');
 
 		const targetUser = await this.UserRepo.findOne({ _id: targetUserId }, { ignoreDefaultFilters: true }).lean().exec();
 		if (!targetUser) throw new NotFoundException('User not found');
 
-		if (user.role === AdminRoleEnum.ADMIN && Object.values(AdminRoleEnum).find((role) => role === targetUser.role)) {
+		if (user.role === RoleEnum.ADMIN && Object.values(RoleEnum).find((role) => role === targetUser.role)) {
 			throw new BadRequestException(
 				'Admin status cannot be changed by admins, only super admin can update status of admins',
 			);
@@ -262,13 +262,13 @@ export default class UserService {
 	}
 
 	async deleteUserAdmin(user: IUserBody, targetUserId: string) {
-		const isAdmin = user.role === AdminRoleEnum.ADMIN;
+		const isAdmin = user.role === RoleEnum.ADMIN;
 		if (!isAdmin) throw new UnauthorizedException('Only admins can delete user');
 
 		const targetUser = await this.UserRepo.findOne({ _id: targetUserId }, { ignoreDefaultFilters: true }).lean().exec();
 		if (!targetUser) throw new NotFoundException('User not found');
 
-		if (user.role === AdminRoleEnum.ADMIN && Object.values(AdminRoleEnum).find((role) => role === targetUser.role)) {
+		if (user.role === RoleEnum.ADMIN && Object.values(RoleEnum).find((role) => role === targetUser.role)) {
 			throw new BadRequestException(
 				'Admin status cannot be changed by admins, only super admin can update status of admins',
 			);
@@ -286,13 +286,13 @@ export default class UserService {
 	}
 
 	async recoverUserAdmin(user: IUserBody, targetUserId: string) {
-		const isAdmin = user.role === AdminRoleEnum.ADMIN;
+		const isAdmin = user.role === RoleEnum.ADMIN;
 		if (!isAdmin) throw new UnauthorizedException('Only admins can recover user');
 
 		const targetUser = await this.UserRepo.findOne({ _id: targetUserId }, { ignoreDefaultFilters: true }).lean().exec();
 		if (!targetUser) throw new NotFoundException('User not found');
 
-		if (user.role === AdminRoleEnum.ADMIN && Object.values(AdminRoleEnum).find((role) => role === targetUser.role)) {
+		if (user.role === RoleEnum.ADMIN && Object.values(RoleEnum).find((role) => role === targetUser.role)) {
 			throw new BadRequestException(
 				'Admin status cannot be changed by admins, only super admin can update status of admins',
 			);

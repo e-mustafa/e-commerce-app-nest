@@ -1,10 +1,10 @@
 import { IUserBody } from '@/common/types';
-import { GetUsersQueryDTO, ParamsUserIdDTO, UpdateUserStatusDTO } from './user.dto';
+import { UpdateUserStatusDTO, UserParamIdDTO, UsersQueryDTO } from './user.dto';
 
-export interface IUpdateUserStatusPayload extends UpdateUserStatusDTO, ParamsUserIdDTO {
+export interface IUpdateUserStatusPayload extends UpdateUserStatusDTO, UserParamIdDTO {
 	user: IUserBody;
 }
 
-export interface IListUsersPayload extends GetUsersQueryDTO {
+export interface IListUsersPayload extends UsersQueryDTO {
 	user: IUserBody;
 }

@@ -3,14 +3,14 @@ import { ImagePathInterceptor } from '@/common/interceptors';
 import type { IUserBody } from '@/common/types';
 import { Body, Controller, Delete, Get, Param, Patch, Query, UseInterceptors } from '@nestjs/common';
 import {
-	type GetUsersQueryDTO,
-	getUsersSchema,
-	type ParamsUserIdDTO,
-	paramsUserIdSchema,
 	updateUerRoleSchema,
 	updateUerStatusSchema,
 	type UpdateUserRoleDTO,
 	type UpdateUserStatusDTO,
+	type UserParamIdDTO,
+	userParamIdSchema,
+	type UsersQueryDTO,
+	usersQuerySchema,
 } from './user.dto';
 import { AdminRoleEnum } from './user.enums';
 import UserService from './user.service';
@@ -36,25 +36,25 @@ export default class UserAdminController {
 	constructor(private readonly service: UserService) {}
 
 	@Get(routes.getUser)
-	async getUser(@AUser() user: IUserBody, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
+	async getUser(@AUser() user: IUserBody, @Param({ schema: userParamIdSchema.params }) params: UserParamIdDTO) {
 		const data = await this.service.getUser(user, params.userId);
 		return { data };
 	}
 
 	@Get(routes.listUsers)
-	async listUsers(@AUser() user: IUserBody, @Query({ schema: getUsersSchema.query }) query: GetUsersQueryDTO) {
+	async listUsers(@AUser() user: IUserBody, @Query({ schema: usersQuerySchema.query }) query: UsersQueryDTO) {
 		const { data, metadata } = await this.service.listUsersAdmin({ user, ...query });
 		return { metadata, data };
 	}
 
 	@Delete(routes.deleteUser)
-	async deleteUser(@AUser() user: IUserBody, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
+	async deleteUser(@AUser() user: IUserBody, @Param({ schema: userParamIdSchema.params }) params: UserParamIdDTO) {
 		const data = await this.service.deleteUserAdmin(user, params.userId);
 		return { message: `User deleted successfully`, data };
 	}
 
 	@Patch(routes.recoverUser)
-	async recoverUser(@AUser() user: IUserBody, @Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO) {
+	async recoverUser(@AUser() user: IUserBody, @Param({ schema: userParamIdSchema.params }) params: UserParamIdDTO) {
 		const data = await this.service.recoverUserAdmin(user, params.userId);
 		return { message: `User recovered successfully`, data };
 	}
@@ -64,7 +64,7 @@ export default class UserAdminController {
 	async updateUserRole(
 		@AUser() user: IUserBody,
 		@Body({ schema: updateUerRoleSchema.body }) body: UpdateUserRoleDTO,
-		@Param({ schema: updateUerRoleSchema.params }) params: ParamsUserIdDTO,
+		@Param({ schema: updateUerRoleSchema.params }) params: UserParamIdDTO,
 	) {
 		const data = await this.service.updateUserRoleAdmin(user, params.userId, body.role);
 		return { message: `User role updated successfully`, data };
@@ -74,7 +74,7 @@ export default class UserAdminController {
 	async updateUserStatus(
 		@AUser() user: IUserBody,
 		@Body({ schema: updateUerStatusSchema.body }) body: UpdateUserStatusDTO,
-		@Param({ schema: paramsUserIdSchema.params }) params: ParamsUserIdDTO,
+		@Param({ schema: userParamIdSchema.params }) params: UserParamIdDTO,
 	) {
 		const data = await this.service.updateUserStatusAdmin({ user, ...params, ...body });
 		return { data };
