@@ -51,11 +51,18 @@ export const updateOrderSchema = {
 export type UpdateOrderDTO = z.infer<typeof updateOrderSchema.body>;
 export type UpdateOrderParamDTO = z.infer<typeof updateOrderSchema.params>;
 
-export const getOrderQuerySchema = {
+export const orderParamIdSchema = {
+	params: z.strictObject({
+		orderId: generalFields.id,
+	}),
+};
+export type OrderParamIdDTO = z.infer<typeof orderParamIdSchema.params>;
+
+export const orderQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 		search: generalFields.search.optional(),
 		userId: generalFields.id.optional(),
 		status: z.enum(Object.values(OrderStatusEnum)).optional(),
@@ -64,4 +71,4 @@ export const getOrderQuerySchema = {
 	}),
 };
 
-export type GetOrderQueryDTO = z.infer<typeof getOrderQuerySchema.query>;
+export type OrderQueryDTO = z.infer<typeof orderQuerySchema.query>;

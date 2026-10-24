@@ -24,7 +24,7 @@ export class OrderAdminController {
 	constructor(private readonly service: OrderService) {}
 
 	@Get(routes.listOrders)
-	async listOrders(@AUser() user: IUserBody, @Query({ schema: S.getOrderQuerySchema.query }) query: dto.GetOrderQueryDTO) {
+	async listOrders(@AUser() user: IUserBody, @Query({ schema: S.orderQuerySchema.query }) query: dto.OrderQueryDTO) {
 		const { data, metadata } = await this.service.listOrders({ user, ...query });
 		return { data, metadata };
 	}

@@ -187,7 +187,7 @@ export class OrderService {
 		paymentMethod,
 		paymentStatus,
 	}: I.IListOrderPayload): Promise<IPaginatedResult<IOrderWData>> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 
 		const filter: QueryFilter<IOrder> = {};
 		if (!isAdmin) {
@@ -221,7 +221,7 @@ export class OrderService {
 	 * Get single order by ID
 	 */
 	async getOrder(user: IUserBody, orderId: string): Promise<IOrderWData> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const order = await this.orderRepo
 			.findOne({ _id: orderId, ...(isAdmin ? {} : { user: user._id }) }, { ignoreDefaultFilters: isAdmin })
 			.lean()
@@ -237,7 +237,7 @@ export class OrderService {
 	 * Cancel order and restock items via database transaction
 	 */
 	async cancelOrder(user: IUserBody, orderId: string): Promise<IOrderWData> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const order = await this.orderRepo
 			.findOne({
 				_id: orderId,
@@ -294,7 +294,7 @@ export class OrderService {
 	 * Update order details (Admin)
 	 */
 	async updateOrderAdmin({ user, orderId, ...body }: I.IUpdateOrderPayload): Promise<IOrderWData> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const order = await this.orderRepo
 			.findOne({ _id: orderId, ...(isAdmin ? {} : { user: user._id }) }, { ignoreDefaultFilters: isAdmin })
 			.exec();
@@ -332,7 +332,7 @@ export class OrderService {
 	 * Soft delete order (Admin)
 	 */
 	async deleteOrderAdmin(user: IUserBody, orderId: string): Promise<IOrderWData> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const order = await this.orderRepo
 			.findOne({ _id: orderId, ...(isAdmin ? {} : { user: user._id }) }, { ignoreDefaultFilters: isAdmin })
 			.exec();
@@ -355,7 +355,7 @@ export class OrderService {
 	 * Recover soft-deleted order (Admin)
 	 */
 	async recoverOrderAdmin(user: IUserBody, orderId: string): Promise<IOrderWData> {
-		const isAdmin = AdminRoles.includes((user?.role as AdminRoleEnum) || 0);
+		const isAdmin = AdminRoles.includes(user?.role as unknown as AdminRoleEnum);
 		const order = await this.orderRepo
 			.findOneAndUpdate(
 				{

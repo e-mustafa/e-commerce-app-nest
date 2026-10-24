@@ -9,6 +9,7 @@ import { OrderController } from './order.controller';
 import { orderModel } from './order.model';
 import { OrderRepository } from './order.repository';
 import { OrderService } from './order.service';
+import { OrderResolver } from './qraphql/order.gql.resolver';
 
 @Module({
 	imports: [
@@ -19,7 +20,7 @@ import { OrderService } from './order.service';
 		forwardRef(() => CartModule),
 	],
 	controllers: [OrderAdminController, OrderController],
-	providers: [OrderService, OrderRepository, OrderNumberGeneratorService],
+	providers: [OrderService, OrderRepository, OrderNumberGeneratorService, OrderResolver],
 	exports: [OrderService, OrderRepository, OrderNumberGeneratorService],
 })
 export class OrderModule {}

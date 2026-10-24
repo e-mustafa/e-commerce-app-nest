@@ -78,6 +78,21 @@ enum GenderEnum {
   MALE
 }
 
+"""Order"""
+type Order {
+  _id: ID!
+  appliedCoupon: Coupon
+  discountAmount: Float!
+  finalTotal: Float!
+  items: [OrderItem!]!
+  note: String
+  orderNumber: String!
+  shippingCost: Float!
+  subTotal: Float!
+  taxAmount: Float!
+  user: User!
+}
+
 """Order item"""
 type OrderItem {
   discount: Float!
@@ -157,14 +172,6 @@ type Product {
   stockType: String
   tags: [String!]!
   title: String!
-}
-
-"""Provider of the user"""
-enum ProviderEnum {
-  FACEBOOK
-  GOOGLE
-  SYSTEM
-  TWITTER
 }
 
 type Query {

@@ -9,6 +9,6 @@ export interface IUpdateOrderPayload extends dto.UpdateOrderDTO, dto.UpdateOrder
 	user: IUserBody;
 }
 
-export interface IListOrderPayload extends dto.GetOrderQueryDTO {
+export interface IListOrderPayload extends dto.OrderQueryDTO {
 	user: IUserBody;
 }

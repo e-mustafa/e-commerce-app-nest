@@ -26,10 +26,7 @@ export class OrderController {
 
 	@Get(routes.listMyOrders)
 	@Cache()
-	async listMyOrders(
-		@AUser() user: IUserBody,
-		@Query({ schema: S.getOrderQuerySchema.query }) query: dto.GetOrderQueryDTO,
-	) {
+	async listMyOrders(@AUser() user: IUserBody, @Query({ schema: S.orderQuerySchema.query }) query: dto.OrderQueryDTO) {
 		const { data, metadata } = await this.service.listOrders({ user, ...query });
 		return { data, metadata };
 	}
