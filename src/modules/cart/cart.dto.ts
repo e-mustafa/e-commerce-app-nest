@@ -20,12 +20,12 @@ export const syncCartSchema = {
 };
 export type SyncCartDTO = z.infer<typeof syncCartSchema.body>;
 
-export const getCartQuerySchema = {
+export const cartQuerySchema = {
 	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
+		page: generalFields.page.default(1).optional(),
+		limit: generalFields.limit.default(defaultLimit).optional(),
+		order: generalFields.order.default(defaultOrder).optional(),
 	}),
 };
 
-export type GetCartQueryDTO = z.infer<typeof getCartQuerySchema.query>;
+export type CartQueryDTO = z.infer<typeof cartQuerySchema.query>;

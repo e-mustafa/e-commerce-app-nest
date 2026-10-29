@@ -1,9 +1,7 @@
 import { generalFields } from '@/common/validation';
-import { appConfig } from '@/config';
-import { SortOrderEnum } from '@/providers/database';
 import z from 'zod';
 
-const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().favorite || {};
+// const { defaultLimit = 10, defaultOrder = SortOrderEnum.DESC } = appConfig().favorite || {};
 
 export const addToFavoriteSchema = {
 	body: z.strictObject({
@@ -19,12 +17,12 @@ export const syncFavoriteSchema = {
 };
 export type SyncFavoriteDTO = z.infer<typeof syncFavoriteSchema.body>;
 
-export const getFavoriteQuerySchema = {
-	query: z.object({
-		page: generalFields.page.default(1),
-		limit: generalFields.limit.default(defaultLimit),
-		order: generalFields.order.default(defaultOrder),
-	}),
-};
+// export const favoriteQuerySchema = {
+// 	query: z.object({
+// 		page: generalFields.page.default(1).optional(),
+// 		limit: generalFields.limit.default(defaultLimit).optional(),
+// 		order: generalFields.order.default(defaultOrder).optional(),
+// 	}),
+// };
 
-export type GetFavoriteQueryDTO = z.infer<typeof getFavoriteQuerySchema.query>;
+// export type FavoriteQueryDTO = z.infer<typeof favoriteQuerySchema.query>;
