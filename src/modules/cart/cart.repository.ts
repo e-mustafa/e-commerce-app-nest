@@ -6,7 +6,7 @@ import type { CartModel, HCart } from './cart.types';
 
 @Injectable()
 export class CartRepository extends BaseRepository<HCart> {
-	constructor(@InjectModel(Cart.name) productModel: CartModel) {
-		super(productModel);
+	constructor(@InjectModel(Cart.name) cartModel: CartModel) {
+		super(cartModel);
 	}
 }

@@ -59,6 +59,9 @@ export const envSchema = z.object({
 
 	// Firebase
 	FIREBASE_SERVICE_ACCOUNT_DATA: z.string().optional(),
+
+	// Stripe
+	STRIPE_SECRET_KEY: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

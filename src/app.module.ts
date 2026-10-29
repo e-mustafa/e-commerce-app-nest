@@ -26,6 +26,7 @@ import { MailModule } from './providers/mail/mail.module';
 import { RedisModule } from './providers/redis/redis.module';
 import { SecurityModule } from './providers/security/security.module';
 import { UploadModule } from './providers/upload/upload.module';
+import { FavoriteModule } from './modules/favorite/favorite.module';
 // export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -71,6 +72,7 @@ import { UploadModule } from './providers/upload/upload.module';
 		CouponModule,
 		CartModule,
 		OrderModule,
+		FavoriteModule,
 		// NotificationModule,
 	],
 	controllers: [],

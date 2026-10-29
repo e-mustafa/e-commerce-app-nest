@@ -87,5 +87,8 @@ export const envConfig = registerAs('env', () => {
 			// accountFile: process.env.FIREBASE_SERVICE_ACCOUNT_File || '',
 			accountData: process.env.FIREBASE_SERVICE_ACCOUNT_DATA || '',
 		},
+		stripe: {
+			secretKey: process.env.STRIPE_SECRET_KEY || '',
+		},
 	};
 });

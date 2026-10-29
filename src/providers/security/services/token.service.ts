@@ -46,7 +46,7 @@ export class TokenService {
 	}
 
 	getSignature(userRole: RoleEnum | string | number) {
-		const role = Number(userRole);
+		const role = userRole;
 		let signature;
 		if (Object.values(AdminRoleEnum)?.includes(role as AdminRoleEnum)) {
 			signature = this.ENV.jwt.admin;
