@@ -8,7 +8,7 @@ import type { IAddToFavoritePayload, ISyncFavoritePayload } from './favorite-ser
 import { FavoriteRepository } from './favorite.repository';
 import type { HFavorite, IFavoriteWProduct } from './favorite.types';
 
-const selectFavoriteProduct = productGeneralSelect || 'title excerpt images slug price';
+const selectFavoriteProduct = productGeneralSelect || 'title excerpt images.0 slug price';
 
 @Injectable()
 export class FavoriteService {
@@ -34,6 +34,7 @@ export class FavoriteService {
 			.populate<IFavoriteWProduct>({
 				path: 'products',
 				select: selectFavoriteProduct,
+				options: { slice: { images: 1 } }, // get only first image
 			})
 			.exec();
 
@@ -53,7 +54,7 @@ export class FavoriteService {
 		const newFavorite = await this.favoriteRepo
 			.findByIdAndUpdate(favorite._id, { $addToSet: { products: productId } })
 			.lean()
-			.populate({ path: 'products', select: selectFavoriteProduct })
+			.populate({ path: 'products', select: selectFavoriteProduct, options: { slice: { images: 1 } } }) // get only first image
 			.exec();
 
 		return newFavorite;
@@ -63,7 +64,7 @@ export class FavoriteService {
 		const updated = await this.favoriteRepo
 			.findOneAndUpdate({ user: userId }, { $pull: { products: productId } })
 			.lean()
-			.populate({ path: 'products', select: selectFavoriteProduct })
+			.populate({ path: 'products', select: selectFavoriteProduct, options: { slice: { images: 1 } } }) // get only first image
 			.exec();
 
 		if (!updated) throw new NotFoundException('Favorite list is empty.');
@@ -83,7 +84,7 @@ export class FavoriteService {
 		const newFavorite = await this.favoriteRepo
 			.findByIdAndUpdate(favorite._id, { $addToSet: { products } })
 			.lean()
-			.populate({ path: 'products', select: selectFavoriteProduct })
+			.populate({ path: 'products', select: selectFavoriteProduct, options: { slice: { images: 1 } } }) // get only first image
 			.exec();
 
 		if (!newFavorite) throw new NotFoundException('Favorite list is empty.');

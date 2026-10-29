@@ -36,10 +36,14 @@ export class CartService {
 	/**
 	 * Retrieves cart and dynamically updates item prices against database state.
 	 */
-	async getCartAndSyncPrices(userId: string): Promise<ICartResponse> {
+	async getCartAndSyncPrices(userId: Id): Promise<ICartResponse> {
 		const cart = await this.cartRepo
 			.findOne({ user: userId })
-			.populate<HCartWProduct>({ path: 'items.product', select: selectCartProduct })
+			.populate<HCartWProduct>({
+				path: 'items.product',
+				select: selectCartProduct,
+				options: { slice: { images: 1 } }, // get only first image
+			})
 			.exec();
 
 		if (!cart) {
@@ -69,14 +73,12 @@ export class CartService {
 			// Check if admin modified price since last cart update
 			if (item.finalPrice !== currentUnitPrice) {
 				hasPriceChanged = true;
-				priceChangeMessages.push(
-					`Price for "${product.title}" changed from $${item.pricePerUnit} to $${currentUnitPrice}.`,
-				);
-				item.pricePerUnit = currentUnitPrice;
+				priceChangeMessages.push(`Price for "${product.title}" changed from $${item.price} to $${currentUnitPrice}.`);
+				item.price = currentUnitPrice;
 			}
 
 			// Calculate line item subtotal
-			item.subTotal = item.pricePerUnit * item.quantity;
+			item.subTotal = item.price * item.quantity;
 			calculatedSubTotal += item.subTotal;
 
 			validItems.push(item);
@@ -124,20 +126,26 @@ export class CartService {
 			cart.items.push({
 				product: productId,
 				quantity,
-				pricePerUnit: productPrice,
+				price: product.price,
+				discount: product.discount,
+				finalPrice: productPrice,
 				subTotal: productPrice * quantity,
 			});
 		}
 
 		this.recalculateCartTotal(cart);
-		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
+		return (
+			await (
+				await cart.save()
+			).populate({ path: 'items.product', select: selectCartProduct, options: { slice: { images: 1 } } })
+		).toObject();
 	}
 
 	async getCart(userId: Id): Promise<ICart> {
 		let cart = await this.cartRepo
 			.findOne({ user: userId })
 			.lean()
-			.populate({ path: 'items.product', select: selectCartProduct })
+			.populate({ path: 'items.product', select: selectCartProduct, options: { slice: { images: 1 } } })
 			.exec();
 
 		if (!cart) {
@@ -152,7 +160,11 @@ export class CartService {
 		cart.items = cart.items.filter((item) => item.product.toString() !== productId.toString());
 
 		this.recalculateCartTotal(cart);
-		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
+		return (
+			await (
+				await cart.save()
+			).populate({ path: 'items.product', select: selectCartProduct, options: { slice: { images: 1 } } })
+		).toObject();
 	}
 
 	async incrementProduct(userId: Id, productId: Id) {
@@ -167,10 +179,14 @@ export class CartService {
 		if (item.quantity > product.stock) {
 			throw new NotFoundException(`Product not enough in stock. Available: ${product.stock}`);
 		}
-		item.subTotal = item.quantity * item.pricePerUnit;
+		item.subTotal = item.quantity * item.price;
 		this.recalculateCartTotal(cart);
 
-		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
+		return (
+			await (
+				await cart.save()
+			).populate({ path: 'items.product', select: selectCartProduct, options: { slice: { images: 1 } } })
+		).toObject();
 	}
 
 	async decrementProduct(userId: Id, productId: Id) {
@@ -183,10 +199,14 @@ export class CartService {
 		}
 
 		item.quantity -= 1;
-		item.subTotal = item.quantity * item.pricePerUnit;
+		item.subTotal = item.quantity * item.price;
 		this.recalculateCartTotal(cart);
 
-		return (await (await cart.save()).populate('items.product', selectCartProduct)).toObject();
+		return (
+			await (
+				await cart.save()
+			).populate({ path: 'items.product', select: selectCartProduct, options: { slice: { images: 1 } } })
+		).toObject();
 	}
 
 	async syncCart({ userId, items }: I.ISyncCartPayload) {
@@ -204,13 +224,15 @@ export class CartService {
 			let quantity = item?.quantity || 1;
 			if (quantity > p.stock) quantity = p.stock;
 
-			const pricePerUnit = p.finalPrice || p.price;
-			const subTotal = pricePerUnit * quantity;
+			const price = p.finalPrice || p.price;
+			const subTotal = price * quantity;
 
 			return {
 				product: p._id.toString(),
 				quantity,
-				pricePerUnit,
+				price: p.price,
+				discount: p.discount,
+				finalPrice: p.finalPrice || p.price,
 				subTotal,
 			};
 		});
@@ -219,7 +241,11 @@ export class CartService {
 		cart.items = itemsToAdd;
 
 		this.recalculateCartTotal(cart);
-		return (await cart.save()).populate('items.product', selectCartProduct);
+		return (await cart.save()).populate({
+			path: 'items.product',
+			select: selectCartProduct,
+			options: { slice: { images: 1 } },
+		});
 	}
 
 	async clearCart(userId: Id, options?: IQueryOptions) {
